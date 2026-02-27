@@ -1,0 +1,36 @@
+# roles/services/tasks/main.yml
+
+- name: Ensure service directories exist
+  file:
+    path: "{{ item.compose_path }}"
+    state: directory
+  loop: "{{ services }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Copy docker-compose.yml into place
+  copy:
+    src: "{{ item.compose_path }}/docker-compose.yml"
+    dest: "{{ item.compose_path }}/docker-compose.yml"
+    remote_src: yes
+  loop: "{{ services }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Copy .env file if service manages env
+  copy:
+    src: "{{ playbook_dir }}/../services/{{ item.name }}/.env"
+    dest: "{{ item.compose_path }}/.env"
+  when: item.manage_env | bool
+  loop: "{{ services }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Deploy service with docker compose v2
+  community.docker.docker_compose_v2:
+    project_src: "{{ item.compose_path }}"
+    state: present
+  loop: "{{ services }}"
+  loop_control:
+    label: "{{ item.name }}"
+

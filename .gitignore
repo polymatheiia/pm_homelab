@@ -1,0 +1,27 @@
+# Ansible
+*.retry
+facts/
+.cache/
+*.retry
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment files
+**/.env
+.env
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Vim
+*.swp
+*.swo
+
+# Accidental data leaks
+services/*/*data/
+services/*/files/
+services/*/library/

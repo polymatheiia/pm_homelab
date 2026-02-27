@@ -1,0 +1,22 @@
+homelab_base: /home/nymph/homelab
+services:
+  - name: immich
+    compose_path: "{{ homelab_base }}/services/immich"
+    manage_env: true
+    port: 2283 
+  - name: navidrome
+    compose_path: "{{ homelab_base }}/services/navidrome"
+    manage_env: false
+    port: 4533
+  - name: vikunja
+    compose_path: "{{ homelab_base }}/services/vikunja"
+    manage_env: true
+    port: 3456
+  - name: glance
+    compose_path: "{{ homelab_base }}/services/glance"
+    manage_env: false
+    port: 8080
+  - name: karakeep
+    compose_path: "{{ homelab_base }}/services/karakeep"
+    manage_env: true
+    port: 3000

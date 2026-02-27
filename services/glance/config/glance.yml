@@ -1,0 +1,154 @@
+server:
+  assets-path: /app/assets
+
+branding:
+  hide-footer: true
+
+theme:
+  background-color: 203 27 9
+  contrast-multiplier: 1.2
+  primary-color: 165 78 51
+  positive-color: 165 78 51
+  negative-color: 360 100 71
+  disable-picker: true
+  custom-css-file: /assets/global.css
+
+pages:
+
+  # ======================
+  # HOME
+  # ======================
+
+  - name: Home
+    columns:
+
+      - size: small
+        widgets:
+
+          - type: calendar
+            first-day-of-week: monday
+
+          - type: clock
+            hour-format: 24h
+
+          - type: monitor
+            title: Core Services
+            cache: 1m
+            sites:
+              - title: Immich
+                url: http://100.117.222.10:2283
+                icon: si:immich
+              - title: Paperless
+                url: http://100.117.222.10:8010
+                icon: si:paperless
+              - title: Grocy
+                url: http://100.117.222.10:9283
+                icon: si:grocy
+              - title: Copyparty
+                url: http://100.117.222.10:7001
+                icon: si:copyparty
+              - title: Vikunja
+                url: http://100.117.222.10:3456
+                icon: si:vikunja
+
+
+      - size: full
+        widgets:
+          - type: group
+            widgets:
+              - type: rss
+                title: "Ukraine"
+                style: horizontal-cards
+                feeds:
+                  - url: https://www.pravda.com.ua/rss/
+                    title: Ukrainska Pravda
+                  - url: https://24tv.ua/rss/all.xml?googleFlg=true
+                    title: 24 Kanal
+              - type: rss
+                title: "Poland"
+                style: horizontal-cards
+                feeds:
+                  - url: https://www.rp.pl/rss_main
+                    title: Rzeczpospolita
+                  - url: https://warsawinsider.pl/feed/
+                    title: Warsaw Insider
+                  - url: https://www.fakt.pl/rss
+                    title: Fakt
+                  - url: https://www.polsatnews.pl/rss/wszystkie.xml
+                    title: Polsat News
+              - type: rss
+                title: "World"
+                style: horizontal-cards
+                feeds:
+                  - url: https://feeds.bbci.co.uk/news/rss.xml
+                    title: BBC
+                  - url: https://www.theguardian.com/world/rss
+                    title: Guardian
+                     
+          - type: group
+            widgets:
+              - type: reddit
+                subreddit: news
+                show-thumbnails: true
+              - type: reddit
+                subreddit: selfhosted
+                show-thumbnails: true
+              - type: reddit
+                subreddit: eurovision
+                show-thumbnails: true                
+              - type: reddit
+                subreddit: technology
+                show-thumbnails: true
+    
+      - size: small
+        widgets:
+          - type: weather
+            location: Warsaw
+            units: metric
+            hour-format: 24h
+            cache: 30m
+          - type: bookmarks
+            groups:
+                - title: Entertainment
+                  links:
+                    - title: YouTube
+                      url: https://www.youtube.com/
+                    - title: Reddit
+                      url: https://www.reddit.com/
+                - title: Personal
+                  links:
+                    - title: ChatGPT
+                      url: https://chatgpt.com/
+                      icon: si:chatgpt
+                    - title: Github
+                      url: https://github.com/
+                      icon: si:github
+                    - title: Gmail
+                      url: https://mail.google.com/
+                      icon: si:mail
+                    - title: Outlook
+                      url: https://outlook.live.com/
+                      icon: si:mail
+                    - title: Deepl
+                      url: https://www.deepl.com/
+                      icon: si:deepl
+                    - title: Facebook
+                      url: https://facebook.com/     
+                      icon: si:facebook
+
+          - type: server-stats
+            servers:
+                - type: local
+                  name: Services
+  # ======================
+  # UNIVERSITY
+  # ======================
+
+  - name: University
+    columns:
+      - size: full
+        widgets:
+          - type: html
+            title: University Dashboard
+            source: |
+              <p>Add your university links, documents and widgets here.</p>

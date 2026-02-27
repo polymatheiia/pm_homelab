@@ -1,0 +1,17 @@
+- name: Install Docker
+  pacman:
+    name:
+      - docker
+      - docker-compose
+    state: present
+
+- name: Enable Docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Install Docker Compose plugin
+  pacman:
+    name: docker-compose
+    state: present

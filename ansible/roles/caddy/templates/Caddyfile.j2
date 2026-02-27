@@ -1,0 +1,10 @@
+{
+    admin unix//run/caddy/admin.socket
+}
+
+{% for service in services %}
+{{ service.name }}.lab {
+    reverse_proxy 127.0.0.1:{{ service.port }}
+    tls internal
+}
+{% endfor %}

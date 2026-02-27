@@ -1,0 +1,42 @@
+#version: "3.8"
+
+services:
+  vikunja:
+    image: vikunja/vikunja:latest
+    container_name: vikunja
+    env_file:
+      - .env
+    environment:
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_HOST: vikunja-db
+      VIKUNJA_DATABASE_DATABASE: vikunja
+      VIKUNJA_DATABASE_USER: vikunja
+      VIKUNJA_DATABASE_PASSWORD: ${VIKUNJA_DB_PASSWORD}
+      VIKUNJA_SERVICE_JWTSECRET: ${VIKUNJA_JWT_SECRET}
+      VIKUNJA_SERVICE_PUBLICURL: ${VIKUNJA_SERVICE_PUBLICURL}
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: "true"
+      XDG_CACHE_HOME: /.cache
+    ports:
+      - "3456:3456"
+    volumes:
+      - /srv/homelab/vikunja/vikunja-data/files:/app/vikunja/files
+      - /srv/homelab/vikunja/vikunja-data/cache:/.cache
+    depends_on:
+      - vikunja-db
+    restart: unless-stopped
+
+  vikunja-db:
+    image: postgres:15
+    container_name: vikunja_db
+    environment:
+      POSTGRES_DB: vikunja
+      POSTGRES_USER: vikunja
+      POSTGRES_PASSWORD: ${VIKUNJA_DB_PASSWORD}
+    volumes:
+      - vikunja-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  vikunja-db-data:
+  vikunja-files:
+  vikunja-cache:
