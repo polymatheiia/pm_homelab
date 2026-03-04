@@ -26,6 +26,7 @@ As it is "homelab" and not "homeprod", it is obviously small - I'm here to learn
 | Vikunja    | 3456 | /srv/homelab/vikunja | 
 | Karakeep   | 3000 | Docker volume |
 | Glance     | 8080 | just configs here |
+| Nextcloud  | 8000 | /srv/homelab/nextcloud |
 
 ## Deployment
 

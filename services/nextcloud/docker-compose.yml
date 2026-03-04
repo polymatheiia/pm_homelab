@@ -1,0 +1,41 @@
+services:
+  # Note: MariaDB is external service. You can find more information about the configuration here:
+  # https://hub.docker.com/_/mariadb
+  db:
+    # Note: Check the recommend version here: https://docs.nextcloud.com/server/latest/admin_manual/installation/system_requirements.html#server
+    image: mariadb:lts
+    container_name: nextcloud-compose-db
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED
+    volumes:
+      - ${DB_DATA_LOCATION}:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PW}
+      - MYSQL_PASSWORD=${DB_PW}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=${DB_USER}
+
+  # Note: Redis is an external service. You can find more information about the configuration here:
+  # https://hub.docker.com/_/redis
+  redis:
+    image: redis:alpine
+    restart: always
+
+  app:
+    image: nextcloud
+    container_name: nextcloud-compose
+    restart: always
+    ports:
+      - 8000:80
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - ${NEXTCLOUD_LIBRARY}:/var/www/html
+    environment:
+      - MYSQL_PASSWORD=${DB_PW}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_HOST=db
+      #
+      - NEXTCLOUD_TRUSTED_DOMAINS=${TRUSTED_DOMAINS}
