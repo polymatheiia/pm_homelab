@@ -1,19 +1,20 @@
 services:
-  web:
-    image: ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION:-release}
+  meilisearch:
+    image: getmeili/meilisearch:v1.13.3
+    container_name: karakeep_meilisearch
     restart: unless-stopped
-    volumes:
-      - data:/data
-    ports:
-      - 3000:3000
     env_file:
       - .env
     environment:
-      MEILI_ADDR: http://meilisearch:7700
-      BROWSER_WEB_URL: http://chrome:9222
-      DATA_DIR: /data # DON'T CHANGE THIS
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearch:/meili_data
+    networks:
+      - karakeep-internal
+
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:124
+    container_name: karakeep_chrome
     restart: unless-stopped
     command:
       - --no-sandbox
@@ -22,16 +23,37 @@ services:
       - --remote-debugging-address=0.0.0.0
       - --remote-debugging-port=9222
       - --hide-scrollbars
-  meilisearch:
-    image: getmeili/meilisearch:v1.13.3
+    networks:
+      - karakeep-internal
+
+  web:
+    image: ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION:-release}
+    container_name: karakeep_web
     restart: unless-stopped
+    ports:
+      - "3000:3000"
     env_file:
       - .env
     environment:
-      MEILI_NO_ANALYTICS: "true"
+      MEILI_ADDR: http://meilisearch:7700
+      BROWSER_WEB_URL: http://chrome:9222
+      DATA_DIR: /data # DON'T CHANGE THIS
     volumes:
-      - meilisearch:/meili_data
+      - data:/data
+    depends_on:
+      - meilisearch
+      - chrome
+    networks:
+      - karakeep-internal
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
 volumes:
   meilisearch:
   data:
+
+networks:
+  karakeep-internal:
+    internal: true

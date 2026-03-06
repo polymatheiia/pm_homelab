@@ -1,8 +1,22 @@
-#version: "3.8"
-
 services:
+  vikunja-db:
+    image: postgres:15.6
+    container_name: vikunja_db
+    environment:
+      POSTGRES_DB: vikunja
+      POSTGRES_USER: vikunja
+      POSTGRES_PASSWORD: ${VIKUNJA_DB_PASSWORD}
+    volumes:
+      - vikunja-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vikunja -d vikunja"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   vikunja:
-    image: vikunja/vikunja:latest
+    image: vikunja/vikunja:0.24.6
     container_name: vikunja
     env_file:
       - .env
@@ -15,28 +29,19 @@ services:
       VIKUNJA_SERVICE_JWTSECRET: ${VIKUNJA_JWT_SECRET}
       VIKUNJA_SERVICE_PUBLICURL: ${VIKUNJA_SERVICE_PUBLICURL}
       VIKUNJA_SERVICE_ENABLEREGISTRATION: "true"
-      XDG_CACHE_HOME: /.cache
+      XDG_CACHE_HOME: /tmp/.cache
     ports:
       - "3456:3456"
     volumes:
       - /srv/homelab/vikunja/vikunja-data/files:/app/vikunja/files
-      - /srv/homelab/vikunja/vikunja-data/cache:/.cache
+      - /srv/homelab/vikunja/vikunja-data/cache:/tmp/.cache
     depends_on:
       - vikunja-db
     restart: unless-stopped
-
-  vikunja-db:
-    image: postgres:15
-    container_name: vikunja_db
-    environment:
-      POSTGRES_DB: vikunja
-      POSTGRES_USER: vikunja
-      POSTGRES_PASSWORD: ${VIKUNJA_DB_PASSWORD}
-    volumes:
-      - vikunja-db-data:/var/lib/postgresql/data
-    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
 volumes:
   vikunja-db-data:
-  vikunja-files:
-  vikunja-cache:

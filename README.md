@@ -25,7 +25,7 @@ If you are not on Arch, the playbook will not work without modifying these roles
 - Reverse proxy: Caddy
 - Container runtime: Docker
 - Provisioning: Ansible
-- Data root: /srv/homelab
+- Data root: /srv/pm_homelab
 
 ## Remote Access
 
