@@ -3,8 +3,17 @@
 }
 
 {% for service in services %}
-{{ service.name }}.lab {
+http://{{ service.name }}.lab {
+    # Optional: bind to a specific interface/IP (e.g. Tailscale)
+    # bind 100.x.y.z
+
     reverse_proxy 127.0.0.1:{{ service.port }}
-    tls internal
+
+    header {
+        -Server
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+    }
 }
 {% endfor %}
