@@ -1,26 +1,65 @@
 # roles/services/tasks/main.yml
 
+- name: Ensure homelab base directory exists
+  file:
+    path: "{{ homelab_base }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Ensure service directories exist
   file:
     path: "{{ item.compose_path }}"
     state: directory
+    owner: root
+    group: root
+    mode: "0755"
   loop: "{{ services }}"
   loop_control:
     label: "{{ item.name }}"
 
-- name: Copy docker-compose.yml into place
-  copy:
-    src: "{{ item.compose_path }}/docker-compose.yml"
-    dest: "{{ item.compose_path }}/docker-compose.yml"
-    remote_src: yes
+- name: Sync service definition directory (compose + configs, excluding .env)
+  # Requires rsync on controller + target (installed in docker role below)
+  synchronize:
+    src: "{{ playbook_dir }}/../services/{{ item.name }}/"
+    dest: "{{ item.compose_path }}/"
+    delete: yes
+    rsync_opts:
+      - "--exclude=.env"
   loop: "{{ services }}"
   loop_control:
     label: "{{ item.name }}"
+
+- name: Check that .env exists for services that require it (on controller)
+  stat:
+    path: "{{ playbook_dir }}/../services/{{ item.name }}/.env"
+  register: env_stat
+  when: item.manage_env | bool
+  loop: "{{ services }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Fail if required .env is missing (create it from .env.example)
+  fail:
+    msg: >
+      Missing services/{{ item.item.name }}/.env on controller.
+      Create it (for example by copying services/{{ item.item.name }}/.env.example to .env)
+      before running Ansible.
+  when:
+    - item.item.manage_env | bool
+    - not item.stat.exists
+  loop: "{{ env_stat.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.name }}"
 
 - name: Copy .env file if service manages env
   copy:
     src: "{{ playbook_dir }}/../services/{{ item.name }}/.env"
     dest: "{{ item.compose_path }}/.env"
+    owner: root
+    group: root
+    mode: "0600"
   when: item.manage_env | bool
   loop: "{{ services }}"
   loop_control:

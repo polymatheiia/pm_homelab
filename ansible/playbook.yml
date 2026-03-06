@@ -1,5 +1,12 @@
 - hosts: all
   become: yes
+
+  pre_tasks:
+    - name: Fail if not running on Arch Linux
+      fail:
+        msg: "This playbook supports Arch Linux only (uses pacman + systemd)."
+      when: ansible_facts['distribution'] != 'Archlinux'
+
   roles:
     - docker
     - caddy

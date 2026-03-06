@@ -1,4 +1,4 @@
-homelab_base: /home/nymph/homelab
+homelab_base: /srv/pm_homelab
 services:
   - name: immich
     compose_path: "{{ homelab_base }}/services/immich"
