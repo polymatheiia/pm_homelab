@@ -28,3 +28,7 @@ services:
     compose_path: "{{ homelab_base }}/services/keycloak"
     manage_env: true
     port: 8081
+  - name: journiv
+    compose_path: "{{ homelab_base }}/services/journiv"
+    manage_env: true
+    port: 8050
