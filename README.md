@@ -25,7 +25,8 @@ If you are not on Arch, the playbook will not work without modifying these roles
 - Reverse proxy: Caddy
 - Container runtime: Docker
 - Provisioning: Ansible
-- Data root: /srv/pm_homelab
+- Compose deploy root: `/srv/pm_homelab` (where Ansible copies compose files)
+- Service data root: `/srv/homelab` (where most services store persistent data)
 
 ## Remote Access
 
@@ -36,21 +37,32 @@ If you are not on Arch, the playbook will not work without modifying these roles
 
 ## Services
 
-| Service    | Port | Data Location |
-|------------|------|---------------|
-| Immich     | 2283 | /srv/homelab/immich |
-| Navidrome  | 4533 | /srv/homelab/navidrome |
-| Vikunja    | 3456 | /srv/homelab/vikunja |
-| Karakeep   | 3000 | Docker volume |
-| Glance     | 8080 | just configs here |
-| Nextcloud  | 8000 | /srv/homelab/nextcloud |
+| Service    | Port | Data Location           | Ansible-managed |
+|------------|------|-------------------------|-----------------|
+| Immich     | 2283 | via `.env` (`UPLOAD_LOCATION`, `DB_DATA_LOCATION`) | yes |
+| Navidrome  | 4533 | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
+| Vikunja    | 3456 | `/srv/homelab/vikunja` (files), Docker volume (DB) | yes |
+| Karakeep   | 3000 | Docker volumes          | yes |
+| Glance     | 8080 | config files in repo    | yes |
+| Nextcloud  | 8000 | Docker volumes          | yes |
+| Keycloak   | 8081 | Docker volume           | yes |
+| Journiv    | 8050 | `/srv/homelab/journiv/data` | no (manual) |
+
+> **Journiv** is not yet wired into the Ansible playbook — start it manually with `docker compose up -d` from `services/journiv/`.
 
 ## Required manual config (.env)
 
-Some services require a `services/<service>/.env` file (not committed). Create it before running Ansible:
+Some services require a `services/<service>/.env` file (not committed). Create it before running Ansible.
 
-- Copy `services/<service>/.env.example` → `services/<service>/.env`
-- Fill in secrets/values
+Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.yml`):
+
+| Service   | Template available |
+|-----------|--------------------|
+| Immich    | no                 |
+| Vikunja   | no                 |
+| Karakeep  | no                 |
+| Nextcloud | no                 |
+| Keycloak  | yes — copy `services/keycloak/.env.example` → `services/keycloak/.env` |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 
@@ -58,3 +70,10 @@ The playbook will fail with a clear error if a required `.env` is missing.
 
 ```bash
 sudo ansible-playbook ansible/playbook.yml -i ansible/inventory.yml
+```
+
+### Ansible collections (install once)
+
+```bash
+ansible-galaxy collection install -r ansible/requirements.yml
+```
