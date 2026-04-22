@@ -55,5 +55,4 @@ volumes:
   data:
 
 networks:
-  karakeep-internal:
-    internal: true
+  karakeep-internal: {}

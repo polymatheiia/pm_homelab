@@ -1,13 +1,11 @@
 services:
   dockerproxy:
-    image: tecnativa/docker-socket-proxy:latest
+    image: tecnativa/docker-socket-proxy:0.3.0
     container_name: glance_dockerproxy
     restart: unless-stopped
     environment:
-      # Start restrictive; loosen only if Glance features need it
       CONTAINERS: "1"
       INFO: "1"
-      # Everything else off by default
       IMAGES: "0"
       NETWORKS: "0"
       SERVICES: "0"
@@ -33,7 +31,6 @@ services:
     environment:
       - HOST_PROC=/host/proc
       - HOST_SYS=/host/sys
-      # If Glance honors DOCKER_HOST, it will use the proxy instead of raw socket
       - DOCKER_HOST=tcp://dockerproxy:2375
     depends_on:
       - dockerproxy
@@ -43,5 +40,4 @@ services:
       - no-new-privileges:true
 
 networks:
-  glance-internal:
-    internal: true
+  glance-internal: {}

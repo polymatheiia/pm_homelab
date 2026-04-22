@@ -24,3 +24,7 @@ services:
     compose_path: "{{ homelab_base }}/services/nextcloud"
     manage_env: true
     port: 8000
+  - name: keycloak
+    compose_path: "{{ homelab_base }}/services/keycloak"
+    manage_env: true
+    port: 8081

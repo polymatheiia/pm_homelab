@@ -38,19 +38,21 @@ pages:
               - title: Immich
                 url: http://100.117.222.10:2283
                 icon: si:immich
-              - title: Paperless
-                url: http://100.117.222.10:8010
-                icon: si:paperless
-              - title: Grocy
-                url: http://100.117.222.10:9283
-                icon: si:grocy
-              - title: Copyparty
-                url: http://100.117.222.10:7001
-                icon: si:copyparty
+              - title: Navidrome
+                url: http://100.117.222.10:4533
+                icon: si:navidrome
+              - title: Karakeep
+                url: http://100.117.222.10:3000
+                icon: si:karakeep
+              - title: Nextcloud
+                url: http://100.117.222.10:8000
+                icon: si:nextcloud
               - title: Vikunja
                 url: http://100.117.222.10:3456
                 icon: si:vikunja
-
+              - title: Journiv
+                url: http://100.117.222.10:8050
+                icon: si:journiv
 
       - size: full
         widgets:
@@ -92,9 +94,6 @@ pages:
                 show-thumbnails: true
               - type: reddit
                 subreddit: selfhosted
-                show-thumbnails: true
-              - type: reddit
-                subreddit: eurovision
                 show-thumbnails: true                
               - type: reddit
                 subreddit: technology
@@ -119,16 +118,16 @@ pages:
                   links:
                     - title: ChatGPT
                       url: https://chatgpt.com/
-                      icon: si:chatgpt
+                      icon: si:openai
                     - title: Github
                       url: https://github.com/
                       icon: si:github
                     - title: Gmail
                       url: https://mail.google.com/
-                      icon: si:mail
+                      icon: si:gmail
                     - title: Outlook
                       url: https://outlook.live.com/
-                      icon: si:mail
+                      icon: si:outlook
                     - title: Deepl
                       url: https://www.deepl.com/
                       icon: si:deepl
@@ -148,7 +147,33 @@ pages:
     columns:
       - size: full
         widgets:
-          - type: html
-            title: University Dashboard
-            source: |
-              <p>Add your university links, documents and widgets here.</p>
+          - type: bookmarks
+            groups:
+                - title: UW
+                  links:
+                    - title: USOSWeb MIMUW
+                      url: https://usosweb.mimuw.edu.pl/
+                    - title: USOSWeb UW
+                      url: https://usosweb.uw.edu.pl/
+                    - title: Moodle
+                      url: https://moodle.mimuw.edu.pl/
+                - title: Samorząd UW
+                  links:
+                    - title: Parlament Studentów UW
+                      url: https://parlament.uw.edu.pl/
+                    - title: Monitor SS UW
+                      url: https://monitor.samorzad.uw.edu.pl/
+                    - title: Cerber SS UW
+                      url: https://cerber.samorzad.uw.edu.pl/
+                - title: Classes
+                  links:
+                    - title: NLP lab
+                      url: https://github.com/mim-ml-teaching/public-nlp-2025-26/tree/main
+                    - title: ML lecture
+                      url: https://mimuw.edu.pl/~pokar/ML26/
+                    - title: ML lab
+                      url: https://github.com/SzymonNowakowski/Machine-Learning-2025L
+                    - title: Industrial Mathematics Zulip
+                      url: https://uzytki25.zulipchat.com/#narrow/channel/534070-general/topic//with/553927211
+                    - title: ZSO
+                      url: https://students.mimuw.edu.pl/ZSO/
