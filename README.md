@@ -46,9 +46,7 @@ If you are not on Arch, the playbook will not work without modifying these roles
 | Glance     | 8080 | config files in repo    | yes |
 | Nextcloud  | 8000 | Docker volumes          | yes |
 | Keycloak   | 8081 | Docker volume           | yes |
-| Journiv    | 8050 | `/srv/homelab/journiv/data` | no (manual) |
-
-> **Journiv** is not yet wired into the Ansible playbook — start it manually with `docker compose up -d` from `services/journiv/`.
+| Journiv    | 8050 | `/srv/homelab/journiv/data` | yes |
 
 ## Required manual config (.env)
 
@@ -63,6 +61,7 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Karakeep  | no                 |
 | Nextcloud | no                 |
 | Keycloak  | yes — copy `services/keycloak/.env.example` → `services/keycloak/.env` |
+| Journiv   | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 
