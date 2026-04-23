@@ -58,5 +58,5 @@ services:
     port: 3001
   - name: searxng
     compose_path: "{{ homelab_base }}/services/searxng"
-    manage_env: true
+    manage_env: false
     port: 8888
