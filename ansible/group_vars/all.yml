@@ -38,3 +38,8 @@ services:
     compose_path: "{{ homelab_base }}/services/journiv"
     manage_env: true
     port: 8050
+  - name: adguard
+    compose_path: "{{ homelab_base }}/services/adguard"
+    manage_env: false
+    port: 3080
+    security_headers: false

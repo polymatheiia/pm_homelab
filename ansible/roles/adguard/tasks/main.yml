@@ -1,0 +1,47 @@
+- name: Fail if tailscale_ip is not set
+  fail:
+    msg: "tailscale_ip must be set in group_vars/all.yml — run: tailscale ip -4"
+  when: not tailscale_ip
+
+- name: Disable and stop dnsmasq (replaced by AdGuard Home)
+  systemd:
+    name: dnsmasq
+    enabled: no
+    state: stopped
+  ignore_errors: yes
+
+- name: Create AdGuard Home data directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - /srv/homelab/adguard/conf
+    - /srv/homelab/adguard/work
+
+- name: Ensure adguard service directory exists
+  file:
+    path: "{{ homelab_base }}/services/adguard"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Template initial AdGuardHome.yaml (skipped if already configured)
+  template:
+    src: AdGuardHome.yaml.j2
+    dest: /srv/homelab/adguard/conf/AdGuardHome.yaml
+    owner: root
+    group: root
+    mode: "0600"
+    force: no
+
+- name: Write adguard .env for docker-compose
+  copy:
+    content: "TAILSCALE_IP={{ tailscale_ip }}\n"
+    dest: "{{ homelab_base }}/services/adguard/.env"
+    owner: root
+    group: root
+    mode: "0600"
