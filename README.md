@@ -61,6 +61,10 @@ All Tailscale devices will then resolve `*.lab` and have ad-blocking via AdGuard
 | Keycloak   | 8081 | Docker volume           | yes |
 | Journiv    | 8050 | `/srv/homelab/journiv/data` | yes |
 | AdGuard Home | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard` | yes |
+| Grocy       | 9283 | `/srv/homelab/grocy`       | yes |
+| Vaultwarden | 8222 | `/srv/homelab/vaultwarden` | yes |
+| Uptime Kuma | 3001 | `/srv/homelab/uptime-kuma` | yes |
+| SearXNG     | 8888 | stateless (config in repo) | yes |
 
 ## Required manual config (.env)
 
@@ -75,7 +79,9 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Karakeep  | no                 |
 | Nextcloud | no                 |
 | Keycloak  | yes — copy `services/keycloak/.env.example` → `services/keycloak/.env` |
-| Journiv   | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
+| Journiv      | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
+| Vaultwarden  | yes — copy `services/vaultwarden/.env.example` → `services/vaultwarden/.env` |
+| SearXNG      | yes — copy `services/searxng/.env.example` → `services/searxng/.env` |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 
