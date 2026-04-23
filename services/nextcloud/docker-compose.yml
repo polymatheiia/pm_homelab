@@ -3,7 +3,7 @@ services:
     image: mariadb:11.4
     container_name: nextcloud-compose-db
     restart: always
-    command: --transaction-isolation=READ-COMMITTED
+    command: --transaction-isolation=READ-COMMITTED --sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
     volumes:
       - ${DB_DATA_LOCATION}:/var/lib/mysql
     environment:
