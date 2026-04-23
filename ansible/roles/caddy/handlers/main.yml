@@ -1,3 +1,7 @@
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
 - name: Restart Caddy
   systemd:
     name: caddy

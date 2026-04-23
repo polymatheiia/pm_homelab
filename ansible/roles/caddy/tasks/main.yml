@@ -20,6 +20,32 @@
     mode: '0644'
   notify: Restart Caddy
 
+- name: Create Caddy systemd override directory
+  file:
+    path: /etc/systemd/system/caddy.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy Caddy systemd override for Tailscale dependency
+  copy:
+    content: |
+      [Unit]
+      After=tailscaled.service
+      Wants=tailscaled.service
+
+      [Service]
+      Restart=on-failure
+      RestartSec=5s
+    dest: /etc/systemd/system/caddy.service.d/tailscale.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd daemon
+    - Restart Caddy
+
 - name: Enable Caddy
   systemd:
     name: caddy
