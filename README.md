@@ -81,7 +81,7 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Keycloak  | yes — copy `services/keycloak/.env.example` → `services/keycloak/.env` |
 | Journiv      | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
 | Vaultwarden  | yes — copy `services/vaultwarden/.env.example` → `services/vaultwarden/.env` |
-| SearXNG      | yes — copy `services/searxng/.env.example` → `services/searxng/.env` |
+| SearXNG      | no — set `server.secret_key` directly in `services/searxng/settings.yml` |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 
