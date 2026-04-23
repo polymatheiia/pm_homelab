@@ -23,6 +23,7 @@ If you are not on Arch, the playbook will not work without modifying these roles
 ## Architecture
 
 - Reverse proxy: Caddy
+- DNS: dnsmasq (resolves `*.lab` → Tailscale IP)
 - Container runtime: Docker
 - Provisioning: Ansible
 - Compose deploy root: `/srv/pm_homelab` (where Ansible copies compose files)
@@ -30,10 +31,21 @@ If you are not on Arch, the playbook will not work without modifying these roles
 
 ## Remote Access
 
-- All services are accessible via Tailscale IP.
-- Example: http://100.x.y.z:2283 → Immich
-- Nothing is exposed to the internet which is exactly the point.
-- Also, I operate under significant constraint called eduroam (the server is in the dorm room), so this is literally the only sane option
+All services are accessible via `http://<service>.lab` from any Tailscale-connected device.
+Nothing is exposed to the internet (eduroam dorm constraint — Tailscale is the only sane option).
+
+### DNS setup (one-time, per deployment)
+
+1. Set `tailscale_ip` in `ansible/group_vars/all.yml` to the server's Tailscale IP:
+   ```bash
+   tailscale ip -4
+   ```
+2. Run the playbook — dnsmasq is deployed and resolves `*.lab` on the Tailscale interface.
+3. In the [Tailscale admin panel](https://login.tailscale.com/admin/dns) → **Nameservers → Add nameserver**:
+   - Address: `<tailscale_ip>`
+   - Restrict to domain: `lab`
+
+All Tailscale devices will then resolve `*.lab` through dnsmasq on the homelab server.
 
 ## Services
 
