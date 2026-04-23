@@ -3,15 +3,17 @@
 }
 
 {% for service in services %}
-http://{{ service.name }}.lab {
+{{ service.name }}.lab {
 {% if tailscale_ip %}
     bind {{ tailscale_ip }}
 {% endif %}
 
+    tls internal
+
     encode gzip zstd
 
     reverse_proxy 127.0.0.1:{{ service.port }} {
-        header_up X-Forwarded-Proto http
+        header_up X-Forwarded-Proto https
     }
 
     header {
