@@ -1,0 +1,14 @@
+# Only answer .lab queries — Tailscale Split DNS sends only those to us.
+# systemd-resolved handles all other DNS on localhost:53 undisturbed.
+
+domain-needed
+bogus-priv
+no-resolv
+
+# Resolve every *.lab hostname to this server's Tailscale IP
+address=/.lab/{{ tailscale_ip }}
+
+# Listen on the Tailscale interface only to avoid port 53 conflict
+# with systemd-resolved on 127.0.0.1
+listen-address={{ tailscale_ip }}
+bind-interfaces
