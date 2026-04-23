@@ -6,7 +6,7 @@ services:
     ports:
       - "${TAILSCALE_IP}:53:53/tcp"
       - "${TAILSCALE_IP}:53:53/udp"
-      - "127.0.0.1:3080:3000"
+      - "3080:3000"
     volumes:
       - /srv/homelab/adguard/conf:/opt/adguardhome/conf
       - /srv/homelab/adguard/work:/opt/adguardhome/work
