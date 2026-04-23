@@ -10,5 +10,5 @@
   roles:
     - docker
     - caddy
-    - dnsmasq
+    - adguard
     - services
