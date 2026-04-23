@@ -44,3 +44,19 @@ services:
     manage_env: false
     port: 3080
     security_headers: false
+  - name: grocy
+    compose_path: "{{ homelab_base }}/services/grocy"
+    manage_env: false
+    port: 9283
+  - name: vaultwarden
+    compose_path: "{{ homelab_base }}/services/vaultwarden"
+    manage_env: true
+    port: 8222
+  - name: uptime-kuma
+    compose_path: "{{ homelab_base }}/services/uptime-kuma"
+    manage_env: false
+    port: 3001
+  - name: searxng
+    compose_path: "{{ homelab_base }}/services/searxng"
+    manage_env: true
+    port: 8888
