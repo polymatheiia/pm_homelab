@@ -23,7 +23,7 @@ If you are not on Arch, the playbook will not work without modifying these roles
 ## Architecture
 
 - Reverse proxy: Caddy
-- DNS: dnsmasq (resolves `*.lab` → Tailscale IP)
+- DNS / ad-blocking: AdGuard Home (resolves `*.lab` → Tailscale IP, filters ads)
 - Container runtime: Docker
 - Provisioning: Ansible
 - Compose deploy root: `/srv/pm_homelab` (where Ansible copies compose files)
@@ -40,12 +40,13 @@ Nothing is exposed to the internet (eduroam dorm constraint — Tailscale is the
    ```bash
    tailscale ip -4
    ```
-2. Run the playbook — dnsmasq is deployed and resolves `*.lab` on the Tailscale interface.
+2. Run the playbook — AdGuard Home is deployed and listens on port 53 of the Tailscale interface.
 3. In the [Tailscale admin panel](https://login.tailscale.com/admin/dns) → **Nameservers → Add nameserver**:
    - Address: `<tailscale_ip>`
    - Restrict to domain: `lab`
+4. Optionally add the same IP as a **global nameserver** (no domain restriction) to route all DNS through AdGuard Home for ad-blocking across all Tailscale devices.
 
-All Tailscale devices will then resolve `*.lab` through dnsmasq on the homelab server.
+All Tailscale devices will then resolve `*.lab` and have ad-blocking via AdGuard Home. The web UI is at `http://adguard.lab`.
 
 ## Services
 
@@ -59,6 +60,7 @@ All Tailscale devices will then resolve `*.lab` through dnsmasq on the homelab s
 | Nextcloud  | 8000 | Docker volumes          | yes |
 | Keycloak   | 8081 | Docker volume           | yes |
 | Journiv    | 8050 | `/srv/homelab/journiv/data` | yes |
+| AdGuard Home | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard` | yes |
 
 ## Required manual config (.env)
 
