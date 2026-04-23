@@ -4,16 +4,16 @@
   file:
     path: "{{ homelab_base }}"
     state: directory
-    owner: root
-    group: root
+    owner: "{{ homelab_user }}"
+    group: "{{ homelab_user }}"
     mode: "0755"
 
 - name: Ensure service directories exist
   file:
     path: "{{ item.compose_path }}"
     state: directory
-    owner: root
-    group: root
+    owner: "{{ homelab_user }}"
+    group: "{{ homelab_user }}"
     mode: "0755"
   loop: "{{ services }}"
   loop_control:
@@ -27,6 +27,7 @@
     delete: yes
     rsync_opts:
       - "--exclude=.env"
+      - "--chown={{ homelab_user }}:{{ homelab_user }}"
   loop: "{{ services }}"
   loop_control:
     label: "{{ item.name }}"
