@@ -7,7 +7,7 @@ services:
       - "8222:80"
     environment:
       ADMIN_TOKEN: ${ADMIN_TOKEN}
-      DOMAIN: http://vaultwarden.lab
+      DOMAIN: https://vaultwarden.lab
       SIGNUPS_ALLOWED: "true"
     volumes:
       - /srv/homelab/vaultwarden:/data

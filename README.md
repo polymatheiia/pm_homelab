@@ -31,8 +31,9 @@ If you are not on Arch, the playbook will not work without modifying these roles
 
 ## Remote Access
 
-All services are accessible via `http://<service>.lab` from any Tailscale-connected device.
+All services are accessible via `https://<service>.lab` from any Tailscale-connected device.
 Nothing is exposed to the internet (eduroam dorm constraint — Tailscale is the only sane option).
+TLS is terminated at Caddy using its internal CA (`tls internal`). Trust the CA cert once per device — see below.
 
 ### DNS setup (one-time, per deployment)
 
@@ -46,7 +47,27 @@ Nothing is exposed to the internet (eduroam dorm constraint — Tailscale is the
    - Restrict to domain: `lab`
 4. Optionally add the same IP as a **global nameserver** (no domain restriction) to route all DNS through AdGuard Home for ad-blocking across all Tailscale devices.
 
-All Tailscale devices will then resolve `*.lab` and have ad-blocking via AdGuard Home. The web UI is at `http://adguard.lab`.
+All Tailscale devices will then resolve `*.lab` and have ad-blocking via AdGuard Home. The web UI is at `https://adguard.lab`.
+
+### HTTPS / CA trust (one-time, per client device)
+
+Caddy uses its own local CA to sign `*.lab` certificates. Fetch the root cert from the server and install it:
+
+```bash
+# On the server — find the root cert
+sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
+```
+
+**Linux:** `sudo cp root.crt /usr/local/share/ca-certificates/caddy-homelab.crt && sudo update-ca-certificates`
+
+**macOS:** Open Keychain Access → import → set to *Always Trust*
+
+**Windows:** `certmgr` → Trusted Root Certification Authorities → import
+
+**Firefox (any OS):** Settings → Privacy & Security → View Certificates → Authorities → Import  
+*(or set `security.enterprise_roots.enabled = true` in `about:config` to inherit OS trust)*
+
+**Android/iOS:** Download the `.crt` file in the browser and follow the install certificate prompt.
 
 ## Services
 
