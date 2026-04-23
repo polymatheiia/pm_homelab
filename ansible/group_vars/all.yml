@@ -1,9 +1,14 @@
 homelab_base: /srv/pm_homelab
+
+# Your Tailscale IPv4 (run: tailscale ip -4). When set, Caddy binds only to this
+# interface so services are unreachable from the LAN. Leave empty to listen on all.
+tailscale_ip: ""
+
 services:
   - name: immich
     compose_path: "{{ homelab_base }}/services/immich"
     manage_env: true
-    port: 2283 
+    port: 2283
   - name: navidrome
     compose_path: "{{ homelab_base }}/services/navidrome"
     manage_env: false
@@ -16,6 +21,7 @@ services:
     compose_path: "{{ homelab_base }}/services/glance"
     manage_env: false
     port: 8080
+    security_headers: false
   - name: karakeep
     compose_path: "{{ homelab_base }}/services/karakeep"
     manage_env: true

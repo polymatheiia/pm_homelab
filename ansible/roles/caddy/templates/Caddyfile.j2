@@ -4,16 +4,23 @@
 
 {% for service in services %}
 http://{{ service.name }}.lab {
-    # Optional: bind to a specific interface/IP (e.g. Tailscale)
-    # bind 100.x.y.z
+{% if tailscale_ip %}
+    bind {{ tailscale_ip }}
+{% endif %}
 
-    reverse_proxy 127.0.0.1:{{ service.port }}
+    encode gzip zstd
+
+    reverse_proxy 127.0.0.1:{{ service.port }} {
+        header_up X-Forwarded-Proto http
+    }
 
     header {
         -Server
+{% if service.security_headers | default(true) %}
         X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
+        X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "no-referrer"
+{% endif %}
     }
 }
 {% endfor %}
