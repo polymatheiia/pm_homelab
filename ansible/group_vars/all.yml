@@ -1,4 +1,5 @@
 homelab_base: /srv/pm_homelab
+homelab_user: nymph
 
 # Your Tailscale IPv4 (run: tailscale ip -4). When set, Caddy binds only to this
 # interface so services are unreachable from the LAN. Leave empty to listen on all.
