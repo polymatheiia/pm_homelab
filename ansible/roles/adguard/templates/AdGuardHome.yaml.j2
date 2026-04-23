@@ -58,9 +58,6 @@ dns:
   blocking_ipv4: ""
   blocking_ipv6: ""
   blocked_response_ttl: 10
-  rewrites:
-    - domain: "*.lab"
-      answer: "{{ tailscale_ip }}"
   upstream_timeout: 10s
   use_private_ptr_resolvers: true
   local_ptr_upstreams: []
@@ -116,6 +113,9 @@ filtering:
   safe_browsing_cache_size: 1048576
   safe_search_cache_size: 1048576
   parental_cache_size: 1048576
+  rewrites:
+    - domain: "*.lab"
+      answer: "{{ tailscale_ip }}"
 log:
   enabled: true
   file: ""
@@ -127,4 +127,4 @@ os:
   group: ""
   user: ""
   rlimit_nofile: 0
-schema_version: 28
+schema_version: 34
