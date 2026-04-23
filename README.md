@@ -58,7 +58,9 @@ Caddy uses its own local CA to sign `*.lab` certificates. Fetch the root cert fr
 sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 ```
 
-**Linux:** `sudo cp root.crt /usr/local/share/ca-certificates/caddy-homelab.crt && sudo update-ca-certificates`
+**Arch Linux:** `sudo cp root.crt /etc/ca-certificates/trust-source/anchors/caddy-homelab.crt && sudo update-ca-trust`
+
+**Debian/Ubuntu:** `sudo cp root.crt /usr/local/share/ca-certificates/caddy-homelab.crt && sudo update-ca-certificates`
 
 **macOS:** Open Keychain Access → import → set to *Always Trust*
 
