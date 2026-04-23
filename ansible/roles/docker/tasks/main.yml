@@ -15,3 +15,19 @@
   pacman:
     name: docker-compose
     state: present
+
+- name: Install nvidia-container-toolkit
+  pacman:
+    name: nvidia-container-toolkit
+    state: present
+
+- name: Check if nvidia runtime is configured in daemon.json
+  command: grep -q '"nvidia"' /etc/docker/daemon.json
+  register: nvidia_runtime_check
+  changed_when: false
+  failed_when: false
+
+- name: Configure nvidia runtime for Docker
+  command: nvidia-ctk runtime configure --runtime=docker
+  when: nvidia_runtime_check.rc != 0
+  notify: Restart Docker
