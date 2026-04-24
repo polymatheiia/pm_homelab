@@ -1,4 +1,4 @@
 use_default_settings: true
 
 server:
-  secret_key: "change_me"  # replace with: openssl rand -hex 32
+  secret_key: "6ff842c01a75519e9e95920835668aad95cc714142c6c1cef88bc921686d5077"  # replace with: openssl rand -hex 32
