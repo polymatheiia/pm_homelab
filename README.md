@@ -100,7 +100,7 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Immich    | no                 |
 | Vikunja   | no                 |
 | Karakeep  | no                 |
-| Nextcloud | no                 |
+| Nextcloud | yes — copy `services/nextcloud/.env.example` → `services/nextcloud/.env` |
 | Keycloak  | yes — copy `services/keycloak/.env.example` → `services/keycloak/.env` |
 | Journiv      | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
 | Vaultwarden  | yes — copy `services/vaultwarden/.env.example` → `services/vaultwarden/.env` |
