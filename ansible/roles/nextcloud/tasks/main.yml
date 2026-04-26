@@ -1,0 +1,15 @@
+- name: Wait for Nextcloud to be ready
+  command: >
+    docker exec nextcloud-compose
+    curl -fsS http://127.0.0.1/status.php
+  register: nc_status
+  until: nc_status.rc == 0 and 'installed' in nc_status.stdout
+  retries: 30
+  delay: 5
+  changed_when: false
+
+- name: Set trusted domain nextcloud.lab
+  command: >
+    docker exec -u www-data nextcloud-compose
+    php occ config:system:set trusted_domains 1 --value=nextcloud.lab
+  changed_when: false
