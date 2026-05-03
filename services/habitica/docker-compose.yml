@@ -1,0 +1,39 @@
+services:
+  server:
+    image: docker.io/awinterstein/habitica-server:latest
+    container_name: habitica
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_DB_URI: mongodb://mongo/habitica
+      BASE_URL: ${BASE_URL:-https://habitica.lab}
+      INVITE_ONLY: ${INVITE_ONLY:-false}
+      EMAIL_SERVER_URL: ${EMAIL_SERVER_URL}
+      EMAIL_SERVER_PORT: ${EMAIL_SERVER_PORT:-587}
+      EMAIL_SERVER_AUTH_USER: ${EMAIL_SERVER_AUTH_USER}
+      EMAIL_SERVER_AUTH_PASSWORD: ${EMAIL_SERVER_AUTH_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+    ports:
+      - "3002:3000"
+
+  mongo:
+    image: mongo:latest
+    container_name: habitica-mongo
+    restart: unless-stopped
+    command: ["--replSet", "rs", "--bind_ip_all", "--port", "27017"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate() }" | mongosh --port 27017 --quiet
+      interval: 10s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - habitica-db:/data/db
+      - habitica-dbconf:/data/configdb
+
+volumes:
+  habitica-db:
+  habitica-dbconf:
