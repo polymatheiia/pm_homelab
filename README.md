@@ -77,7 +77,6 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 |------------|------|-------------------------|-----------------|
 | Immich     | 2283 | via `.env` (`UPLOAD_LOCATION`, `DB_DATA_LOCATION`) | yes |
 | Navidrome  | 4533 | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
-| Vikunja    | 3456 | `/srv/homelab/vikunja` (files), Docker volume (DB) | yes |
 | Karakeep   | 3000 | Docker volumes          | yes |
 | Glance     | 8080 | config files in repo    | yes |
 | Nextcloud  | 8000 | Docker volumes          | yes |
@@ -99,7 +98,6 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Service   | Template available |
 |-----------|--------------------|
 | Immich    | no                 |
-| Vikunja   | no                 |
 | Karakeep  | no                 |
 | Nextcloud | yes — copy `services/nextcloud/.env.example` → `services/nextcloud/.env` |
 | Keycloak  | yes — copy `services/keycloak/.env.example` → `services/keycloak/.env` |
