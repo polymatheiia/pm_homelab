@@ -28,7 +28,7 @@ services:
       retries: 10
 
   app:
-    image: nextcloud:31
+    image: nextcloud:33
     container_name: nextcloud-compose
     restart: always
     ports:

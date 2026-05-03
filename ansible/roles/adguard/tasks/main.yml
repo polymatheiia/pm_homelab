@@ -10,6 +10,17 @@
     state: stopped
   ignore_errors: yes
 
+- name: Mask systemd-resolved (conflicts with AdGuard)
+  systemd:
+    name: "{{ item }}"
+    masked: yes
+    state: stopped
+  loop:
+    - systemd-resolved.service
+    - systemd-resolved-monitor.socket
+    - systemd-resolved-varlink.socket
+  ignore_errors: yes
+
 - name: Create AdGuard Home data directories
   file:
     path: "{{ item }}"
