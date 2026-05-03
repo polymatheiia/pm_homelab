@@ -88,6 +88,7 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Vaultwarden | 8222 | `/srv/homelab/vaultwarden` | yes |
 | Uptime Kuma | 3001 | `/srv/homelab/uptime-kuma` | yes |
 | SearXNG     | 8888 | stateless (config in repo) | yes |
+| Habitica    | 3002 | Docker volumes (MongoDB)   | yes |
 
 ## Required manual config (.env)
 
@@ -105,6 +106,7 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Journiv      | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
 | Vaultwarden  | yes — copy `services/vaultwarden/.env.example` → `services/vaultwarden/.env` |
 | SearXNG      | no — set `server.secret_key` directly in `services/searxng/settings.yml` |
+| Habitica     | yes — copy `services/habitica/.env.example` → `services/habitica/.env` |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 

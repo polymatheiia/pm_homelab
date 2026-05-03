@@ -60,3 +60,7 @@ services:
     compose_path: "{{ homelab_base }}/services/searxng"
     manage_env: false
     port: 8888
+  - name: habitica
+    compose_path: "{{ homelab_base }}/services/habitica"
+    manage_env: true
+    port: 3002
