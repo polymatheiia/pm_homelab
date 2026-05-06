@@ -58,8 +58,8 @@
   copy:
     src: "{{ playbook_dir }}/../services/{{ item.name }}/.env"
     dest: "{{ item.compose_path }}/.env"
-    owner: root
-    group: root
+    owner: "{{ homelab_user }}"
+    group: "{{ homelab_user }}"
     mode: "0600"
   when: item.manage_env | bool
   loop: "{{ services }}"
