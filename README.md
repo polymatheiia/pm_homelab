@@ -80,14 +80,12 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Karakeep   | 3000 | Docker volumes          | yes |
 | Glance     | 8080 | config files in repo    | yes |
 | Nextcloud  | 8000 | Docker volumes          | yes |
-| Keycloak   | 8081 | Docker volume           | yes |
 | Journiv    | 8050 | `/srv/homelab/journiv/data` | yes |
 | AdGuard Home | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard` | yes |
 | Grocy       | 9283 | `/srv/homelab/grocy`       | yes |
 | Vaultwarden | 8222 | `/srv/homelab/vaultwarden` | yes |
 | Uptime Kuma | 3001 | `/srv/homelab/uptime-kuma` | yes |
 | SearXNG     | 8888 | stateless (config in repo) | yes |
-| Habitica    | 3002 | Docker volumes (MongoDB)   | yes |
 
 ## Required manual config (.env)
 
@@ -100,11 +98,9 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Immich    | no                 |
 | Karakeep  | no                 |
 | Nextcloud | yes — copy `services/nextcloud/.env.example` → `services/nextcloud/.env` |
-| Keycloak  | yes — copy `services/keycloak/.env.example` → `services/keycloak/.env` |
 | Journiv      | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
 | Vaultwarden  | yes — copy `services/vaultwarden/.env.example` → `services/vaultwarden/.env` |
 | SearXNG      | no — set `server.secret_key` directly in `services/searxng/settings.yml` |
-| Habitica     | yes — copy `services/habitica/.env.example` → `services/habitica/.env` |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 
