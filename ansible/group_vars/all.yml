@@ -27,10 +27,6 @@ services:
     compose_path: "{{ homelab_base }}/services/nextcloud"
     manage_env: true
     port: 8000
-  - name: keycloak
-    compose_path: "{{ homelab_base }}/services/keycloak"
-    manage_env: true
-    port: 8081
   - name: journiv
     compose_path: "{{ homelab_base }}/services/journiv"
     manage_env: true
@@ -56,7 +52,3 @@ services:
     compose_path: "{{ homelab_base }}/services/searxng"
     manage_env: false
     port: 8888
-  - name: habitica
-    compose_path: "{{ homelab_base }}/services/habitica"
-    manage_env: true
-    port: 3002
