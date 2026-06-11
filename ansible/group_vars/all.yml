@@ -40,10 +40,6 @@ services:
     compose_path: "{{ homelab_base }}/services/grocy"
     manage_env: false
     port: 9283
-  - name: vaultwarden
-    compose_path: "{{ homelab_base }}/services/vaultwarden"
-    manage_env: true
-    port: 8222
   - name: uptime-kuma
     compose_path: "{{ homelab_base }}/services/uptime-kuma"
     manage_env: false
