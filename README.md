@@ -73,18 +73,33 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 
 ## Services
 
-| Service    | Port | Data Location           | Ansible-managed |
-|------------|------|-------------------------|-----------------|
-| Immich     | 2283 | via `.env` (`UPLOAD_LOCATION`, `DB_DATA_LOCATION`) | yes |
-| Navidrome  | 4533 | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
-| Karakeep   | 3000 | Docker volumes          | yes |
-| Glance     | 8080 | config files in repo    | yes |
-| Nextcloud  | 8000 | Docker volumes          | yes |
-| Journiv    | 8050 | `/srv/homelab/journiv/data` | yes |
-| AdGuard Home | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard` | yes |
-| Grocy       | 9283 | `/srv/homelab/grocy`       | yes |
-| Uptime Kuma | 3001 | `/srv/homelab/uptime-kuma` | yes |
-| SearXNG     | 8888 | stateless (config in repo) | yes |
+| Service         | Port          | Data Location                        | Ansible-managed |
+|-----------------|---------------|--------------------------------------|-----------------|
+| Immich          | 2283          | via `.env` (`UPLOAD_LOCATION`, `DB_DATA_LOCATION`) | yes |
+| Navidrome       | 4533          | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
+| Karakeep        | 3000          | Docker volumes                       | yes |
+| Glance          | 8080          | config files in repo                 | yes |
+| Nextcloud       | 8000          | Docker volumes                       | yes |
+| Journiv         | 8050          | `/srv/homelab/journiv/data`          | yes |
+| AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
+| Grocy           | 9283          | `/srv/homelab/grocy`                 | yes |
+| SearXNG         | 8888          | stateless (config in repo)           | yes |
+| Paperless-ngx   | 8010          | via `.env`                           | yes |
+| Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
+| Grafana         | 3030          | `/srv/homelab/grafana`               | yes |
+
+### Sparky Fitness — split routing
+
+Sparky has a separate nginx frontend (port 3004) and Node.js backend (port 3010).
+Caddy routes `/api/*` and `/uploads/*` directly to port 3010; everything else goes to the frontend.
+This avoids the Docker DNS caching bug that would occur if nginx inside the frontend container
+proxied to the backend — after a container recreation the cached IP would be stale.
+
+### Bridge Manager
+
+[Beeper bridge-manager](https://github.com/beeper/bridge-manager) (`bbctl`) is installed and managed
+by the `bridge-manager` Ansible role. Bridges are defined in `ansible/group_vars/all.yml` under
+`bridge_manager_bridges` and run as systemd units (`bbctl-<name>.service`).
 
 ## Required manual config (.env)
 
@@ -92,13 +107,15 @@ Some services require a `services/<service>/.env` file (not committed). Create i
 
 Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.yml`):
 
-| Service   | Template available |
-|-----------|--------------------|
-| Immich    | no                 |
-| Karakeep  | no                 |
-| Nextcloud | yes — copy `services/nextcloud/.env.example` → `services/nextcloud/.env` |
-| Journiv      | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
-| SearXNG      | no — set `server.secret_key` directly in `services/searxng/settings.yml` |
+| Service         | Template available |
+|-----------------|--------------------|
+| Immich          | no                 |
+| Karakeep        | no                 |
+| Nextcloud       | yes — copy `services/nextcloud/.env.example` → `services/nextcloud/.env` |
+| Journiv         | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
+| Paperless-ngx   | no                 |
+| Sparky Fitness  | no                 |
+| Grafana         | no                 |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 
