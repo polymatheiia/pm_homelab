@@ -1,0 +1,65 @@
+services:
+  paperless-broker:
+    image: docker.io/library/redis:8
+    container_name: paperless-broker
+    restart: unless-stopped
+    volumes:
+      - /srv/homelab/paperless/redis:/data
+    networks:
+      - paperless-internal
+
+  paperless-db:
+    image: docker.io/library/postgres:18
+    container_name: paperless-db
+    restart: unless-stopped
+    volumes:
+      - /srv/homelab/paperless/postgres:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${PAPERLESS_DBPASS}
+    networks:
+      - paperless-internal
+
+  paperless-gotenberg:
+    image: docker.io/gotenberg/gotenberg:8
+    container_name: paperless-gotenberg
+    restart: unless-stopped
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+    networks:
+      - paperless-internal
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    depends_on:
+      - paperless-db
+      - paperless-broker
+      - paperless-gotenberg
+    ports:
+      - "8010:8000"
+    volumes:
+      - /srv/homelab/paperless/data:/usr/src/paperless/data
+      - /srv/homelab/paperless/media:/usr/src/paperless/media
+      - /srv/homelab/paperless/export:/usr/src/paperless/export
+      - /srv/homelab/paperless/consume:/usr/src/paperless/consume
+    env_file: .env
+    environment:
+      PAPERLESS_REDIS: redis://paperless-broker:6379
+      PAPERLESS_DBHOST: paperless-db
+      PAPERLESS_DBPASS: ${PAPERLESS_DBPASS}
+      PAPERLESS_TASK_WORKERS: 1
+      PAPERLESS_TIKA_ENABLED: 0
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://paperless-gotenberg:3000
+    networks:
+      - paperless-internal
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  paperless-internal:
+    driver: bridge
