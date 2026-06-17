@@ -66,6 +66,19 @@
   loop_control:
     label: "{{ item.name }}"
 
+- name: Remove stopped containers with dead network references
+  shell: |
+    for cid in $(docker ps -a --filter status=exited --filter status=created --filter status=dead --format '{% raw %}{{.ID}}{% endraw %}'); do
+      nets=$(docker inspect "$cid" --format '{% raw %}{{range $k,$v := .NetworkSettings.Networks}}{{$v.NetworkID}} {{end}}{% endraw %}' 2>/dev/null)
+      for netid in $nets; do
+        if [ -n "$netid" ] && ! docker network inspect "$netid" > /dev/null 2>&1; then
+          docker rm "$cid"
+          break
+        fi
+      done
+    done
+  changed_when: false
+
 - name: Deploy service with docker compose v2
   community.docker.docker_compose_v2:
     project_src: "{{ item.compose_path }}"
@@ -73,4 +86,22 @@
   loop: "{{ services }}"
   loop_control:
     label: "{{ item.name }}"
+
+- name: Find all .env files in service directories
+  find:
+    paths: "{{ homelab_base }}/services"
+    patterns: ".env"
+    recurse: yes
+    depth: 1
+  register: service_env_files
+
+- name: Ensure all .env files are owned by homelab_user with mode 0600
+  file:
+    path: "{{ item.path }}"
+    owner: "{{ homelab_user }}"
+    group: "{{ homelab_user }}"
+    mode: "0600"
+  loop: "{{ service_env_files.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
 
