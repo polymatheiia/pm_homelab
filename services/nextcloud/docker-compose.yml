@@ -6,6 +6,7 @@ services:
     command: --transaction-isolation=READ-COMMITTED --sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
     volumes:
       - ${DB_DATA_LOCATION}:/var/lib/mysql
+      - ./mariadb.cnf:/etc/mysql/conf.d/memory.cnf:ro
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PW}
       MYSQL_PASSWORD: ${DB_PW}
@@ -39,6 +40,7 @@ services:
     volumes:
       - nextcloud-html:/var/www/html
       - nextcloud-data:/var/www/html/data
+      - /srv/pm_homelab/services/nextcloud/mpm_prefork.conf:/etc/apache2/mods-available/mpm_prefork.conf:ro
     environment:
       MYSQL_PASSWORD: ${DB_PW}
       MYSQL_DATABASE: nextcloud
