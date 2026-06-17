@@ -152,6 +152,10 @@ services:
   app:
     <<: *app-common
     container_name: journiv-postgres-app
+    command: >
+      gunicorn app.main:app -w 1 -k uvicorn.workers.UvicornWorker
+      --worker-connections 1000 --max-requests 1000 --max-requests-jitter 100
+      --timeout 300 --access-logfile - -b 0.0.0.0:8000
     ports:
       - "8050:8000"
     environment:
