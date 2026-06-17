@@ -1,0 +1,15 @@
+[Unit]
+Description=Beeper self-hosted bridge: {{ item.name }}
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ homelab_user }}
+ExecStart=/home/{{ homelab_user }}/.local/bin/bbctl run --type {{ item.type }} {{ item.name }}
+Restart=always
+RestartSec=10
+Environment=HOME=/home/{{ homelab_user }}
+
+[Install]
+WantedBy=multi-user.target
