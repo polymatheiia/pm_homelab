@@ -40,11 +40,26 @@ services:
     compose_path: "{{ homelab_base }}/services/grocy"
     manage_env: false
     port: 9283
-  - name: uptime-kuma
-    compose_path: "{{ homelab_base }}/services/uptime-kuma"
-    manage_env: false
-    port: 3001
   - name: searxng
     compose_path: "{{ homelab_base }}/services/searxng"
     manage_env: false
     port: 8888
+  - name: paperless
+    compose_path: "{{ homelab_base }}/services/paperless"
+    manage_env: true
+    port: 8010
+  - name: sparky
+    compose_path: "{{ homelab_base }}/services/sparky"
+    manage_env: true
+    port: 3004
+    backend_port: 3010
+  - name: grafana
+    compose_path: "{{ homelab_base }}/services/grafana"
+    manage_env: true
+    port: 3030
+
+bridge_manager_bridges:
+  - name: sh-telegram
+    type: telegram
+  - name: sh-meta
+    type: meta
