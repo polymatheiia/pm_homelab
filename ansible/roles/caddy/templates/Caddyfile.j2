@@ -12,9 +12,29 @@
 
     encode gzip zstd
 
+{% if service.backend_port is defined %}
+    handle /api/* {
+        reverse_proxy 127.0.0.1:{{ service.backend_port }} {
+            header_up X-Forwarded-Proto https
+        }
+    }
+
+    handle /uploads/* {
+        reverse_proxy 127.0.0.1:{{ service.backend_port }} {
+            header_up X-Forwarded-Proto https
+        }
+    }
+
+    handle {
+        reverse_proxy 127.0.0.1:{{ service.port }} {
+            header_up X-Forwarded-Proto https
+        }
+    }
+{% else %}
     reverse_proxy 127.0.0.1:{{ service.port }} {
         header_up X-Forwarded-Proto https
     }
+{% endif %}
 
     header {
         -Server
