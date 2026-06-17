@@ -1,0 +1,66 @@
+- name: Ensure Go is installed
+  pacman:
+    name: go
+    state: present
+  become: true
+
+- name: Ensure Python and ffmpeg are installed
+  pacman:
+    name:
+      - python
+      - ffmpeg
+      - base-devel
+    state: present
+  become: true
+
+- name: Clone bridge-manager source
+  git:
+    repo: https://github.com/beeper/bridge-manager.git
+    dest: "{{ homelab_base }}/bridge-manager/src"
+    version: main
+    update: true
+
+- name: Build bbctl
+  command: ./build.sh
+  args:
+    chdir: "{{ homelab_base }}/bridge-manager/src"
+    creates: "{{ homelab_base }}/bridge-manager/src/bbctl"
+
+- name: Install bbctl to user bin
+  copy:
+    src: "{{ homelab_base }}/bridge-manager/src/bbctl"
+    dest: /home/{{ homelab_user }}/.local/bin/bbctl
+    mode: '0755'
+    remote_src: true
+
+- name: Ensure data directory exists
+  file:
+    path: "{{ homelab_base }}/bridge-manager/data"
+    state: directory
+    owner: "{{ homelab_user }}"
+    group: "{{ homelab_user }}"
+    mode: '0700'
+
+- name: Deploy bbctl config
+  template:
+    src: bbctl.json.j2
+    dest: /home/{{ homelab_user }}/.config/bbctl.json
+    owner: "{{ homelab_user }}"
+    group: "{{ homelab_user }}"
+    mode: '0600'
+
+- name: Deploy systemd units for each bridge
+  template:
+    src: bbctl-bridge.service.j2
+    dest: "/etc/systemd/system/bbctl-{{ item.name }}.service"
+  loop: "{{ bridge_manager_bridges }}"
+  become: true
+  notify: reload systemd
+
+- name: Enable and start bridge services
+  systemd:
+    name: "bbctl-{{ item.name }}.service"
+    enabled: true
+    state: started
+  loop: "{{ bridge_manager_bridges }}"
+  become: true

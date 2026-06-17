@@ -25,3 +25,6 @@ Thumbs.db
 services/*/*data/
 services/*/files/
 services/*/library/
+
+# bridge-manager runtime (cloned + built by Ansible)
+/bridge-manager/
