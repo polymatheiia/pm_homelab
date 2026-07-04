@@ -22,17 +22,413 @@ pages:
   - name: Home
     columns:
 
+      # ---- LEFT small ----
       - size: small
         widgets:
-
-          - type: calendar
-            first-day-of-week: monday
 
           - type: clock
             hour-format: 24h
 
+          - type: weather
+            title: Warsaw
+            location: Warsaw, Poland
+            units: metric
+            hour-format: 24h
+
+          - type: custom-api
+            title: Warsaw — Extended
+            cache: 30m
+            url: https://api.open-meteo.com/v1/forecast
+            parameters:
+              latitude: "52.2298"
+              longitude: "21.0118"
+              current: temperature_2m,wind_speed_10m,wind_direction_10m,precipitation,surface_pressure
+              daily: uv_index_max
+              timezone: Europe/Warsaw
+              forecast_days: "1"
+            subrequests:
+              aqi:
+                url: https://air-quality-api.open-meteo.com/v1/air-quality
+                parameters:
+                  latitude: "52.2298"
+                  longitude: "21.0118"
+                  current: european_aqi,pm2_5,pm10
+                  timezone: Europe/Warsaw
+            template: |
+              {{ $aqi := .Subrequest "aqi" }}
+              {{ $aqiVal := $aqi.JSON.Int "current.european_aqi" }}
+              {{ $aqiLabel := "Good" }}
+              {{ if gt $aqiVal 20 }}{{ $aqiLabel = "Fair" }}{{ end }}
+              {{ if gt $aqiVal 40 }}{{ $aqiLabel = "Moderate" }}{{ end }}
+              {{ if gt $aqiVal 60 }}{{ $aqiLabel = "Poor" }}{{ end }}
+              {{ if gt $aqiVal 80 }}{{ $aqiLabel = "Very Poor" }}{{ end }}
+              <ul class="list-gap-2">
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Wind</span>
+                  <span>{{ .JSON.Float "current.wind_speed_10m" | printf "%.0f" }} km/h · {{ .JSON.Int "current.wind_direction_10m" }}°</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Pressure</span>
+                  <span>{{ .JSON.Float "current.surface_pressure" | printf "%.0f" }} hPa</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Precipitation</span>
+                  <span>{{ .JSON.Float "current.precipitation" | printf "%.1f" }} mm</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">UV Index (max)</span>
+                  <span>{{ .JSON.Float "daily.uv_index_max.0" | printf "%.1f" }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">AQI (EU)</span>
+                  <span>{{ $aqiVal }} — {{ $aqiLabel }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">PM2.5 / PM10</span>
+                  <span>{{ $aqi.JSON.Float "current.pm2_5" | printf "%.0f" }} / {{ $aqi.JSON.Float "current.pm10" | printf "%.0f" }} µg/m³</span>
+                </li>
+              </ul>
+
+          - type: custom-api
+            title: Space Weather
+            cache: 30m
+            url: https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json
+            subrequests:
+              scales:
+                url: https://services.swpc.noaa.gov/products/noaa-scales.json
+            template: |
+              {{ $scales := .Subrequest "scales" }}
+              {{ $kp := .JSON.Array "" }}
+              {{ $last := index $kp (sub (len $kp) 1) }}
+              {{ $kpRaw := $last.String "Kp" }}
+              {{ $kpNum := $last.Float "Kp" }}
+              {{ $kpClass := "color-positive" }}
+              {{ if gt $kpNum 3.0 }}{{ $kpClass = "" }}{{ end }}
+              {{ if gt $kpNum 4.0 }}{{ $kpClass = "color-negative" }}{{ end }}
+              <ul class="list-gap-2">
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Kp Index</span>
+                  <span class="{{ $kpClass }} text-bold">{{ $kpRaw }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Geomagnetic (G)</span>
+                  <span>{{ $scales.JSON.String "0.G.Scale" }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Solar Radiation (S)</span>
+                  <span>{{ $scales.JSON.String "0.S.Scale" }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Radio Blackout (R)</span>
+                  <span>{{ $scales.JSON.String "0.R.Scale" }}</span>
+                </li>
+              </ul>
+
+      # ---- CENTER full ----
+      - size: full
+        widgets:
+
+          - type: group
+            widgets:
+              - type: rss
+                title: Ukraine
+                style: horizontal-cards
+                feeds:
+                  - url: https://www.pravda.com.ua/rss/
+                    title: Ukrainska Pravda
+                  - url: https://24tv.ua/rss/all.xml?googleFlg=true
+                    title: 24 Kanal
+              - type: rss
+                title: Poland
+                style: horizontal-cards
+                feeds:
+                  - url: https://www.rp.pl/rss_main
+                    title: Rzeczpospolita
+                  - url: https://warsawinsider.pl/feed/
+                    title: Warsaw Insider
+                  - url: https://www.polsatnews.pl/rss/wszystkie.xml
+                    title: Polsat News
+              - type: rss
+                title: World
+                style: horizontal-cards
+                feeds:
+                  - url: https://feeds.bbci.co.uk/news/rss.xml
+                    title: BBC
+                  - url: https://www.theguardian.com/world/rss
+                    title: Guardian
+
+          # Daily sun-sign horoscope. The zodiac sign is in the URL path
+          # (sagittarius = born 2003-12-06). The natal "personal" endpoint
+          # needs a fragile undocumented body, so we use the simple sun-sign feed.
+          - type: custom-api
+            title: Daily Horoscope
+            cache: 12h
+            url: https://json.astrologyapi.com/v1/sun_sign_prediction/daily/sagittarius
+            headers:
+              Authorization: Basic ${ASTROLOGY_BASIC_TOKEN}
+              Content-Type: application/json
+            method: post
+            body:
+              timezone: 2
+            template: |
+              <div class="color-subdue size-small margin-block-end-3">Sagittarius · {{ .JSON.String "prediction_date" }}</div>
+              <ul class="list-gap-3">
+                <li>
+                  <p class="size-h5 color-highlight">Personal Life</p>
+                  <p>{{ .JSON.String "prediction.personal_life" }}</p>
+                </li>
+                <li>
+                  <p class="size-h5 color-highlight">Profession</p>
+                  <p>{{ .JSON.String "prediction.profession" }}</p>
+                </li>
+                <li>
+                  <p class="size-h5 color-highlight">Health</p>
+                  <p>{{ .JSON.String "prediction.health" }}</p>
+                </li>
+                <li>
+                  <p class="size-h5 color-highlight">Emotions</p>
+                  <p>{{ .JSON.String "prediction.emotions" }}</p>
+                </li>
+                <li>
+                  <p class="size-h5 color-highlight">Travel</p>
+                  <p>{{ .JSON.String "prediction.travel" }}</p>
+                </li>
+                <li>
+                  <p class="size-h5 color-highlight">Luck</p>
+                  <p>{{ .JSON.String "prediction.luck" }}</p>
+                </li>
+              </ul>
+
+      # ---- RIGHT small ----
+      - size: small
+        widgets:
+
+          - type: weather
+            title: Ivano-Frankivsk
+            location: Ivano-Frankivsk, Ukraine
+            units: metric
+            hour-format: 24h
+
+          - type: custom-api
+            title: IF — Extended
+            cache: 30m
+            url: https://api.open-meteo.com/v1/forecast
+            parameters:
+              latitude: "48.9215"
+              longitude: "24.7111"
+              current: temperature_2m,wind_speed_10m,wind_direction_10m,precipitation,surface_pressure
+              daily: uv_index_max
+              timezone: Europe/Kiev
+              forecast_days: "1"
+            subrequests:
+              aqi:
+                url: https://air-quality-api.open-meteo.com/v1/air-quality
+                parameters:
+                  latitude: "48.9215"
+                  longitude: "24.7111"
+                  current: european_aqi,pm2_5,pm10
+                  timezone: Europe/Kiev
+            template: |
+              {{ $aqi := .Subrequest "aqi" }}
+              {{ $aqiVal := $aqi.JSON.Int "current.european_aqi" }}
+              {{ $aqiLabel := "Good" }}
+              {{ if gt $aqiVal 20 }}{{ $aqiLabel = "Fair" }}{{ end }}
+              {{ if gt $aqiVal 40 }}{{ $aqiLabel = "Moderate" }}{{ end }}
+              {{ if gt $aqiVal 60 }}{{ $aqiLabel = "Poor" }}{{ end }}
+              {{ if gt $aqiVal 80 }}{{ $aqiLabel = "Very Poor" }}{{ end }}
+              <ul class="list-gap-2">
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Wind</span>
+                  <span>{{ .JSON.Float "current.wind_speed_10m" | printf "%.0f" }} km/h · {{ .JSON.Int "current.wind_direction_10m" }}°</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Pressure</span>
+                  <span>{{ .JSON.Float "current.surface_pressure" | printf "%.0f" }} hPa</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Precipitation</span>
+                  <span>{{ .JSON.Float "current.precipitation" | printf "%.1f" }} mm</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">UV Index (max)</span>
+                  <span>{{ .JSON.Float "daily.uv_index_max.0" | printf "%.1f" }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">AQI (EU)</span>
+                  <span>{{ $aqiVal }} — {{ $aqiLabel }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">PM2.5 / PM10</span>
+                  <span>{{ $aqi.JSON.Float "current.pm2_5" | printf "%.0f" }} / {{ $aqi.JSON.Float "current.pm10" | printf "%.0f" }} µg/m³</span>
+                </li>
+              </ul>
+
+          - type: calendar
+            first-day-of-week: monday
+
+          # Calendar: 6 subrequests to ical-events sidecar, one per calendar.
+          # The sidecar fetches ICS via CalDAV export URL with basic auth.
+          # All creds passed as query params — safe because ical-events is
+          # on the internal Docker network, never exposed to host.
+          - type: custom-api
+            title: Today
+            title-url: https://nextcloud.lab/apps/calendar
+            cache: 15m
+            # Primary request: Personal calendar
+            url: http://ical-events:8076/events
+            parameters:
+              url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/personal/?export
+              username: ${NEXTCLOUD_USER}
+              password: ${NEXTCLOUD_PASSWORD}
+              horizon_days: "1"
+            subrequests:
+              essential:
+                url: http://ical-events:8076/events
+                parameters:
+                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/calendargooglecom/?export
+                  username: ${NEXTCLOUD_USER}
+                  password: ${NEXTCLOUD_PASSWORD}
+                  horizon_days: "1"
+              moodle:
+                url: http://ical-events:8076/events
+                parameters:
+                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/moodlemimuwedupl/?export
+                  username: ${NEXTCLOUD_USER}
+                  password: ${NEXTCLOUD_PASSWORD}
+                  horizon_days: "1"
+              usos:
+                url: http://ical-events:8076/events
+                parameters:
+                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/usosappsuwedupl/?export
+                  username: ${NEXTCLOUD_USER}
+                  password: ${NEXTCLOUD_PASSWORD}
+                  horizon_days: "1"
+              mim:
+                url: http://ical-events:8076/events
+                parameters:
+                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/calendargooglecom-1/?export
+                  username: ${NEXTCLOUD_USER}
+                  password: ${NEXTCLOUD_PASSWORD}
+                  horizon_days: "1"
+              facebook:
+                url: http://ical-events:8076/events
+                parameters:
+                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/wwwfacebookcom/?export
+                  username: ${NEXTCLOUD_USER}
+                  password: ${NEXTCLOUD_PASSWORD}
+                  horizon_days: "1"
+            template: |
+              {{/* Each sidecar response is {"events": [...]} already sorted (ongoing
+                   first, then by start time). The list is flat — there is no
+                   ongoing/upcoming split — so we render each calendar's events in
+                   sequence under a single list, tagging each with its source. */}}
+              {{ define "calRow" }}
+                <div class="flex items-center gap-2">
+                  {{ if .Bool "ongoing" }}
+                    <span class="size-h4 color-positive text-bold">Now</span>
+                  {{ else if .Bool "all_day" }}
+                    <span class="size-h4 color-highlight text-bold">All day</span>
+                  {{ else }}
+                    <span class="size-h4 color-highlight text-bold">{{ slice (.String "start") 11 16 }}</span>
+                  {{ end }}
+                  <span>{{ .String "name" }}</span>
+                </div>
+              {{ end }}
+
+              {{ $personal  := .JSON.Array "events" }}
+              {{ $essential := (.Subrequest "essential").JSON.Array "events" }}
+              {{ $moodle    := (.Subrequest "moodle").JSON.Array "events" }}
+              {{ $usos      := (.Subrequest "usos").JSON.Array "events" }}
+              {{ $mim       := (.Subrequest "mim").JSON.Array "events" }}
+              {{ $facebook  := (.Subrequest "facebook").JSON.Array "events" }}
+
+              {{ if not (or $personal $essential $moodle $usos $mim $facebook) }}
+                <p class="color-subdue">No events today.</p>
+              {{ else }}
+                <ul class="list-gap-3">
+                  {{ range $personal }}
+                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">Personal{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
+                  {{ end }}
+                  {{ range $essential }}
+                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">Essential{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
+                  {{ end }}
+                  {{ range $moodle }}
+                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">Moodle{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
+                  {{ end }}
+                  {{ range $usos }}
+                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">USOS{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
+                  {{ end }}
+                  {{ range $mim }}
+                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">MIM{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
+                  {{ end }}
+                  {{ range $facebook }}
+                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">Facebook{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
+                  {{ end }}
+                </ul>
+              {{ end }}
+
+  # ======================
+  # LAB
+  # ======================
+
+  - name: Lab
+    columns:
+
+      # ---- LEFT small ----
+      - size: small
+        widgets:
+
+          - type: server-stats
+            title: System
+            servers:
+              - type: local
+                name: forestmachine
+
+          - type: custom-api
+            title: GPU
+            cache: 30s
+            url: http://glances:61208/api/4/gpu
+            template: |
+              {{ $gpus := .JSON.Array "" }}
+              {{ if not $gpus }}
+                <p class="color-subdue">No GPU data.</p>
+              {{ else }}
+                {{ range $gpus }}
+                  <ul class="list-gap-2 margin-block-end-4">
+                    <li class="size-h4 color-highlight">{{ .String "name" }}</li>
+                    <li class="flex items-center justify-between">
+                      <span class="color-subdue">GPU Load</span>
+                      <span>{{ .Int "proc" }}%</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                      <span class="color-subdue">VRAM</span>
+                      <span>{{ .Float "mem" | printf "%.0f" }}%</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                      <span class="color-subdue">Temp</span>
+                      <span>{{ .Int "temperature" }}°C</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                      <span class="color-subdue">Fan</span>
+                      <span>{{ .Int "fan_speed" }}%</span>
+                    </li>
+                  </ul>
+                {{ end }}
+              {{ end }}
+
+      # ---- CENTER full ----
+      - size: full
+        widgets:
+
+          - type: dns-stats
+            title: AdGuard
+            service: adguard
+            url: http://100.117.222.10:3080
+            username: ${ADGUARD_USER}
+            password: ${ADGUARD_PASSWORD}
+
           - type: monitor
-            title: Core Services
+            title: Services
             cache: 1m
             sites:
               - title: Immich
@@ -41,106 +437,32 @@ pages:
               - title: Navidrome
                 url: http://100.117.222.10:4533
                 icon: si:navidrome
-              - title: Karakeep
-                url: http://100.117.222.10:3000
-                icon: si:karakeep
               - title: Nextcloud
                 url: http://100.117.222.10:8000
                 icon: si:nextcloud
-              - title: Vikunja
-                url: http://100.117.222.10:3456
-                icon: si:vikunja
+              - title: Karakeep
+                url: http://100.117.222.10:3000
               - title: Journiv
                 url: http://100.117.222.10:8050
-                icon: si:journiv
+              - title: Grocy
+                url: http://100.117.222.10:9283
+              - title: SearXNG
+                url: http://100.117.222.10:8888
+                icon: si:searxng
+              - title: Grafana
+                url: http://100.117.222.10:3030
+                icon: si:grafana
+              - title: Paperless
+                url: http://100.117.222.10:8010
+                icon: si:paperlessngx
+              - title: Sparky
+                url: http://100.117.222.10:3004
+              - title: AdGuard
+                url: http://100.117.222.10:3080
+                icon: si:adguard
 
-      - size: full
-        widgets:
-          - type: group
-            widgets:
-              - type: rss
-                title: "Ukraine"
-                style: horizontal-cards
-                feeds:
-                  - url: https://www.pravda.com.ua/rss/
-                    title: Ukrainska Pravda
-                  - url: https://24tv.ua/rss/all.xml?googleFlg=true
-                    title: 24 Kanal
-              - type: rss
-                title: "Poland"
-                style: horizontal-cards
-                feeds:
-                  - url: https://www.rp.pl/rss_main
-                    title: Rzeczpospolita
-                  - url: https://warsawinsider.pl/feed/
-                    title: Warsaw Insider
-                  - url: https://www.fakt.pl/rss
-                    title: Fakt
-                  - url: https://www.polsatnews.pl/rss/wszystkie.xml
-                    title: Polsat News
-              - type: rss
-                title: "World"
-                style: horizontal-cards
-                feeds:
-                  - url: https://feeds.bbci.co.uk/news/rss.xml
-                    title: BBC
-                  - url: https://www.theguardian.com/world/rss
-                    title: Guardian
-                     
-          - type: group
-            widgets:
-              - type: reddit
-                subreddit: news
-                show-thumbnails: true
-              - type: reddit
-                subreddit: selfhosted
-                show-thumbnails: true                
-              - type: reddit
-                subreddit: technology
-                show-thumbnails: true
-    
-      - size: small
-        widgets:
-          - type: weather
-            location: Warsaw
-            units: metric
-            hour-format: 24h
-            cache: 30m
-          - type: bookmarks
-            groups:
-                - title: Entertainment
-                  links:
-                    - title: YouTube
-                      url: https://www.youtube.com/
-                    - title: Reddit
-                      url: https://www.reddit.com/
-                - title: Personal
-                  links:
-                    - title: ChatGPT
-                      url: https://chatgpt.com/
-                      icon: si:openai
-                    - title: Github
-                      url: https://github.com/
-                      icon: si:github
-                    - title: Gmail
-                      url: https://mail.google.com/
-                      icon: si:gmail
-                    - title: Outlook
-                      url: https://outlook.live.com/
-                      icon: si:outlook
-                    - title: Deepl
-                      url: https://www.deepl.com/
-                      icon: si:deepl
-                    - title: Facebook
-                      url: https://facebook.com/     
-                      icon: si:facebook
-
-          - type: server-stats
-            servers:
-                - type: local
-                  name: Services
   # ======================
-  # UNIVERSITY
+  # UNIVERSITY (unchanged)
   # ======================
 
   - name: University
@@ -149,31 +471,31 @@ pages:
         widgets:
           - type: bookmarks
             groups:
-                - title: UW
-                  links:
-                    - title: USOSWeb MIMUW
-                      url: https://usosweb.mimuw.edu.pl/
-                    - title: USOSWeb UW
-                      url: https://usosweb.uw.edu.pl/
-                    - title: Moodle
-                      url: https://moodle.mimuw.edu.pl/
-                - title: Samorząd UW
-                  links:
-                    - title: Parlament Studentów UW
-                      url: https://parlament.uw.edu.pl/
-                    - title: Monitor SS UW
-                      url: https://monitor.samorzad.uw.edu.pl/
-                    - title: Cerber SS UW
-                      url: https://cerber.samorzad.uw.edu.pl/
-                - title: Classes
-                  links:
-                    - title: NLP lab
-                      url: https://github.com/mim-ml-teaching/public-nlp-2025-26/tree/main
-                    - title: ML lecture
-                      url: https://mimuw.edu.pl/~pokar/ML26/
-                    - title: ML lab
-                      url: https://github.com/SzymonNowakowski/Machine-Learning-2025L
-                    - title: Industrial Mathematics Zulip
-                      url: https://uzytki25.zulipchat.com/#narrow/channel/534070-general/topic//with/553927211
-                    - title: ZSO
-                      url: https://students.mimuw.edu.pl/ZSO/
+              - title: UW
+                links:
+                  - title: USOSWeb MIMUW
+                    url: https://usosweb.mimuw.edu.pl/
+                  - title: USOSWeb UW
+                    url: https://usosweb.uw.edu.pl/
+                  - title: Moodle
+                    url: https://moodle.mimuw.edu.pl/
+              - title: Samorząd UW
+                links:
+                  - title: Parlament Studentów UW
+                    url: https://parlament.uw.edu.pl/
+                  - title: Monitor SS UW
+                    url: https://monitor.samorzad.uw.edu.pl/
+                  - title: Cerber SS UW
+                    url: https://cerber.samorzad.uw.edu.pl/
+              - title: Classes
+                links:
+                  - title: NLP lab
+                    url: https://github.com/mim-ml-teaching/public-nlp-2025-26/tree/main
+                  - title: ML lecture
+                    url: https://mimuw.edu.pl/~pokar/ML26/
+                  - title: ML lab
+                    url: https://github.com/SzymonNowakowski/Machine-Learning-2025L
+                  - title: Industrial Mathematics Zulip
+                    url: https://uzytki25.zulipchat.com/#narrow/channel/534070-general/topic//with/553927211
+                  - title: ZSO
+                    url: https://students.mimuw.edu.pl/ZSO/

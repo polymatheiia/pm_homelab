@@ -1,4 +1,6 @@
 services:
+
+  # Docker socket proxy — unchanged
   dockerproxy:
     image: tecnativa/docker-socket-proxy:0.3.0
     container_name: glance_dockerproxy
@@ -17,6 +19,38 @@ services:
     networks:
       - glance-internal
 
+  # Glances — system + GPU stats REST API for the Lab tab GPU widget.
+  glances:
+    image: nicolargo/glances:ubuntu-latest-full
+    container_name: glance_glances
+    restart: unless-stopped
+    pid: host
+    environment:
+      GLANCES_OPT: "-w --disable-plugin connections"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - glance-internal
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    security_opt:
+      - no-new-privileges:true
+
+  # iCal-events sidecar — one instance, handles all calendar fetches.
+  # Image is on GHCR, not Docker Hub.
+  ical-events:
+    image: ghcr.io/awildleon/glance-ical-events:v1.3.3
+    container_name: glance_ical_events
+    restart: unless-stopped
+    networks:
+      - glance-internal
+
+  # Glance — main dashboard
   glance:
     image: glanceapp/glance:latest
     container_name: glance
@@ -32,8 +66,18 @@ services:
       - HOST_PROC=/host/proc
       - HOST_SYS=/host/sys
       - DOCKER_HOST=tcp://dockerproxy:2375
+      # AdGuard credentials — set in .env
+      - ADGUARD_USER=${ADGUARD_USER}
+      - ADGUARD_PASSWORD=${ADGUARD_PASSWORD}
+      # Nextcloud CalDAV credentials — set in .env
+      - NEXTCLOUD_USER=${NEXTCLOUD_USER}
+      - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
+      # AstrologyAPI — base64("userId:apiKey"), set in .env
+      - ASTROLOGY_BASIC_TOKEN=${ASTROLOGY_BASIC_TOKEN}
     depends_on:
       - dockerproxy
+      - glances
+      - ical-events
     networks:
       - glance-internal
     security_opt:
