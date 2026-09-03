@@ -72,8 +72,6 @@ services:
       # Nextcloud CalDAV credentials — set in .env
       - NEXTCLOUD_USER=${NEXTCLOUD_USER}
       - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
-      # AstrologyAPI — base64("userId:apiKey"), set in .env
-      - ASTROLOGY_BASIC_TOKEN=${ASTROLOGY_BASIC_TOKEN}
     depends_on:
       - dockerproxy
       - glances

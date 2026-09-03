@@ -157,112 +157,6 @@ pages:
                   - url: https://www.theguardian.com/world/rss
                     title: Guardian
 
-          # Daily sun-sign horoscope. The zodiac sign is in the URL path
-          # (sagittarius = born 2003-12-06). The natal "personal" endpoint
-          # needs a fragile undocumented body, so we use the simple sun-sign feed.
-          - type: custom-api
-            title: Daily Horoscope
-            cache: 12h
-            url: https://json.astrologyapi.com/v1/sun_sign_prediction/daily/sagittarius
-            headers:
-              Authorization: Basic ${ASTROLOGY_BASIC_TOKEN}
-              Content-Type: application/json
-            method: post
-            body:
-              timezone: 2
-            template: |
-              <div class="color-subdue size-small margin-block-end-3">Sagittarius · {{ .JSON.String "prediction_date" }}</div>
-              <ul class="list-gap-3">
-                <li>
-                  <p class="size-h5 color-highlight">Personal Life</p>
-                  <p>{{ .JSON.String "prediction.personal_life" }}</p>
-                </li>
-                <li>
-                  <p class="size-h5 color-highlight">Profession</p>
-                  <p>{{ .JSON.String "prediction.profession" }}</p>
-                </li>
-                <li>
-                  <p class="size-h5 color-highlight">Health</p>
-                  <p>{{ .JSON.String "prediction.health" }}</p>
-                </li>
-                <li>
-                  <p class="size-h5 color-highlight">Emotions</p>
-                  <p>{{ .JSON.String "prediction.emotions" }}</p>
-                </li>
-                <li>
-                  <p class="size-h5 color-highlight">Travel</p>
-                  <p>{{ .JSON.String "prediction.travel" }}</p>
-                </li>
-                <li>
-                  <p class="size-h5 color-highlight">Luck</p>
-                  <p>{{ .JSON.String "prediction.luck" }}</p>
-                </li>
-              </ul>
-
-      # ---- RIGHT small ----
-      - size: small
-        widgets:
-
-          - type: weather
-            title: Ivano-Frankivsk
-            location: Ivano-Frankivsk, Ukraine
-            units: metric
-            hour-format: 24h
-
-          - type: custom-api
-            title: IF — Extended
-            cache: 30m
-            url: https://api.open-meteo.com/v1/forecast
-            parameters:
-              latitude: "48.9215"
-              longitude: "24.7111"
-              current: temperature_2m,wind_speed_10m,wind_direction_10m,precipitation,surface_pressure
-              daily: uv_index_max
-              timezone: Europe/Kiev
-              forecast_days: "1"
-            subrequests:
-              aqi:
-                url: https://air-quality-api.open-meteo.com/v1/air-quality
-                parameters:
-                  latitude: "48.9215"
-                  longitude: "24.7111"
-                  current: european_aqi,pm2_5,pm10
-                  timezone: Europe/Kiev
-            template: |
-              {{ $aqi := .Subrequest "aqi" }}
-              {{ $aqiVal := $aqi.JSON.Int "current.european_aqi" }}
-              {{ $aqiLabel := "Good" }}
-              {{ if gt $aqiVal 20 }}{{ $aqiLabel = "Fair" }}{{ end }}
-              {{ if gt $aqiVal 40 }}{{ $aqiLabel = "Moderate" }}{{ end }}
-              {{ if gt $aqiVal 60 }}{{ $aqiLabel = "Poor" }}{{ end }}
-              {{ if gt $aqiVal 80 }}{{ $aqiLabel = "Very Poor" }}{{ end }}
-              <ul class="list-gap-2">
-                <li class="flex items-center justify-between">
-                  <span class="color-subdue">Wind</span>
-                  <span>{{ .JSON.Float "current.wind_speed_10m" | printf "%.0f" }} km/h · {{ .JSON.Int "current.wind_direction_10m" }}°</span>
-                </li>
-                <li class="flex items-center justify-between">
-                  <span class="color-subdue">Pressure</span>
-                  <span>{{ .JSON.Float "current.surface_pressure" | printf "%.0f" }} hPa</span>
-                </li>
-                <li class="flex items-center justify-between">
-                  <span class="color-subdue">Precipitation</span>
-                  <span>{{ .JSON.Float "current.precipitation" | printf "%.1f" }} mm</span>
-                </li>
-                <li class="flex items-center justify-between">
-                  <span class="color-subdue">UV Index (max)</span>
-                  <span>{{ .JSON.Float "daily.uv_index_max.0" | printf "%.1f" }}</span>
-                </li>
-                <li class="flex items-center justify-between">
-                  <span class="color-subdue">AQI (EU)</span>
-                  <span>{{ $aqiVal }} — {{ $aqiLabel }}</span>
-                </li>
-                <li class="flex items-center justify-between">
-                  <span class="color-subdue">PM2.5 / PM10</span>
-                  <span>{{ $aqi.JSON.Float "current.pm2_5" | printf "%.0f" }} / {{ $aqi.JSON.Float "current.pm10" | printf "%.0f" }} µg/m³</span>
-                </li>
-              </ul>
-
           - type: calendar
             first-day-of-week: monday
 
@@ -365,6 +259,84 @@ pages:
                     <li>{{ template "calRow" . }}<p class="color-subdue size-small">Facebook{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
                   {{ end }}
                 </ul>
+              {{ end }}
+
+      # ---- RIGHT small ----
+      - size: small
+        widgets:
+
+          - type: weather
+            title: Ivano-Frankivsk
+            location: Ivano-Frankivsk, Ukraine
+            units: metric
+            hour-format: 24h
+
+          - type: custom-api
+            title: IF — Extended
+            cache: 30m
+            url: https://api.open-meteo.com/v1/forecast
+            parameters:
+              latitude: "48.9215"
+              longitude: "24.7111"
+              current: temperature_2m,wind_speed_10m,wind_direction_10m,precipitation,surface_pressure
+              daily: uv_index_max
+              timezone: Europe/Kiev
+              forecast_days: "1"
+            subrequests:
+              aqi:
+                url: https://air-quality-api.open-meteo.com/v1/air-quality
+                parameters:
+                  latitude: "48.9215"
+                  longitude: "24.7111"
+                  current: european_aqi,pm2_5,pm10
+                  timezone: Europe/Kiev
+            template: |
+              {{ $aqi := .Subrequest "aqi" }}
+              {{ $aqiVal := $aqi.JSON.Int "current.european_aqi" }}
+              {{ $aqiLabel := "Good" }}
+              {{ if gt $aqiVal 20 }}{{ $aqiLabel = "Fair" }}{{ end }}
+              {{ if gt $aqiVal 40 }}{{ $aqiLabel = "Moderate" }}{{ end }}
+              {{ if gt $aqiVal 60 }}{{ $aqiLabel = "Poor" }}{{ end }}
+              {{ if gt $aqiVal 80 }}{{ $aqiLabel = "Very Poor" }}{{ end }}
+              <ul class="list-gap-2">
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Wind</span>
+                  <span>{{ .JSON.Float "current.wind_speed_10m" | printf "%.0f" }} km/h · {{ .JSON.Int "current.wind_direction_10m" }}°</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Pressure</span>
+                  <span>{{ .JSON.Float "current.surface_pressure" | printf "%.0f" }} hPa</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">Precipitation</span>
+                  <span>{{ .JSON.Float "current.precipitation" | printf "%.1f" }} mm</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">UV Index (max)</span>
+                  <span>{{ .JSON.Float "daily.uv_index_max.0" | printf "%.1f" }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">AQI (EU)</span>
+                  <span>{{ $aqiVal }} — {{ $aqiLabel }}</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="color-subdue">PM2.5 / PM10</span>
+                  <span>{{ $aqi.JSON.Float "current.pm2_5" | printf "%.0f" }} / {{ $aqi.JSON.Float "current.pm10" | printf "%.0f" }} µg/m³</span>
+                </li>
+              </ul>
+
+          # Random useless fact. Public API, no auth. Cached 6h so the
+          # same fact shows all day rather than changing on every refresh.
+          - type: custom-api
+            title: Useless Fact
+            cache: 6h
+            url: https://uselessfacts.jsph.pl/api/v2/facts/random?language=en
+            template: |
+              {{ $fact := .JSON.String "text" }}
+              {{ if $fact }}
+                <p>{{ $fact }}</p>
+              {{ else }}
+                <p class="color-subdue">No fact available right now.</p>
               {{ end }}
 
   # ======================
