@@ -87,6 +87,28 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Paperless-ngx   | 8010          | via `.env`                           | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
 | Grafana         | 3030          | `/srv/homelab/grafana`               | yes |
+| GramVault Atlas | 8777          | `/srv/homelab/gramvault-atlas` (db/chroma/media) | yes |
+
+### GramVault Atlas
+
+Local-first pipeline for saved Instagram content (pull/import → enrich →
+categorize → digest → Obsidian) with a RAG chat and a reels-style feed.
+Fork of [GramVault](https://github.com/aleksanderislami03-cell/gramvault);
+this repo's copy lives at [`polymatheiia/gramvault-atlas`](https://github.com/polymatheiia/gramvault-atlas).
+
+- **Source / build context:** `/srv/gramvault-atlas` (a git clone — this is
+  the one service built from source, not pulled as an image).
+- **Bundled Ollama:** `services/gramvault-atlas/docker-compose.yml` runs
+  `ollama` as a second service on a private network, reusing the existing
+  `ollama` Docker volume. There is no standalone `ollama` container.
+- **First deploy:** `sudo bash services/gramvault-atlas/migrate-from-home.sh`
+  (moves the checkout + data into place, drops the old standalone `ollama`),
+  then the playbook.
+- **Updating the app:** `git -C /srv/gramvault-atlas pull` then
+  `docker compose -f services/gramvault-atlas/docker-compose.yml up -d --build`.
+- This box has 7.7 GB RAM / no swap — route the `digest` (and heavy
+  `categorize`) AI tasks to a hosted API in Settings → Models if local
+  models thrash.
 
 ### Sparky Fitness — split routing
 
@@ -115,6 +137,7 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Journiv         | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
 | Paperless-ngx   | no                 |
 | Sparky Fitness  | no                 |
+| GramVault Atlas | yes — copy `services/gramvault-atlas/.env.example` → `.env` (just host uid/gid) |
 | Grafana         | no                 |
 
 The playbook will fail with a clear error if a required `.env` is missing.
