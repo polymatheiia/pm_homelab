@@ -80,13 +80,9 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Karakeep        | 3000          | Docker volumes                       | yes |
 | Glance          | 8080          | config files in repo                 | yes |
 | Nextcloud       | 8000          | Docker volumes                       | yes |
-| Journiv         | 8050          | `/srv/homelab/journiv/data`          | yes |
 | AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
-| Grocy           | 9283          | `/srv/homelab/grocy`                 | yes |
 | SearXNG         | 8888          | stateless (config in repo)           | yes |
-| Paperless-ngx   | 8010          | via `.env`                           | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
-| Grafana         | 3030          | `/srv/homelab/grafana`               | yes |
 | GramVault Atlas | 8777          | `/srv/homelab/gramvault-atlas` (db/chroma/media) | yes |
 
 ### GramVault Atlas
@@ -134,11 +130,8 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 | Immich          | no                 |
 | Karakeep        | no                 |
 | Nextcloud       | yes — copy `services/nextcloud/.env.example` → `services/nextcloud/.env` |
-| Journiv         | yes — copy `services/journiv/.env.example` → `services/journiv/.env` |
-| Paperless-ngx   | no                 |
 | Sparky Fitness  | no                 |
 | GramVault Atlas | yes — copy `services/gramvault-atlas/.env.example` → `.env` (just host uid/gid) |
-| Grafana         | no                 |
 
 The playbook will fail with a clear error if a required `.env` is missing.
 

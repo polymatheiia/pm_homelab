@@ -414,19 +414,9 @@ pages:
                 icon: si:nextcloud
               - title: Karakeep
                 url: http://100.117.222.10:3000
-              - title: Journiv
-                url: http://100.117.222.10:8050
-              - title: Grocy
-                url: http://100.117.222.10:9283
               - title: SearXNG
                 url: http://100.117.222.10:8888
                 icon: si:searxng
-              - title: Grafana
-                url: http://100.117.222.10:3030
-                icon: si:grafana
-              - title: Paperless
-                url: http://100.117.222.10:8010
-                icon: si:paperlessngx
               - title: Sparky
                 url: http://100.117.222.10:3004
               - title: AdGuard
