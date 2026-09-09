@@ -2,3 +2,27 @@ use_default_settings: true
 
 server:
   secret_key: "6ff842c01a75519e9e95920835668aad95cc714142c6c1cef88bc921686d5077"  # replace with: openssl rand -hex 32
+
+# Persist engine sessions/cookies (cuts repeated CAPTCHA negotiation with
+# Google/Startpage) and enable the limiter. Points at the valkey sidecar.
+valkey:
+  url: valkey://valkey:6379/0
+
+outgoing:
+  request_timeout: 8.0
+  max_request_timeout: 15.0
+  pool_connections: 100
+  pool_maxsize: 20
+  retries: 2
+
+engines:
+  # karmasearch was suspended upstream (permanent "access denied"), not
+  # rate-limited. Same for its media variants.
+  - name: karmasearch
+    disabled: true
+  - name: karmasearch images
+    disabled: true
+  - name: karmasearch news
+    disabled: true
+  - name: karmasearch videos
+    disabled: true
