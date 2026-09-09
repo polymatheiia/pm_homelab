@@ -1,0 +1,100 @@
+# GramVault Atlas — private, local-first pipeline for saved Instagram content
+# (pull/import → enrich → categorize → digest → Obsidian) with a RAG chat and
+# a reels-style feed.
+#
+#   Source / build context : /srv/gramvault-atlas   (git clone of the app)
+#   Persistent data         : /srv/homelab/gramvault-atlas
+#   Routed by Caddy         : https://gramvault-atlas.lab  →  127.0.0.1:8777
+#
+# Ollama is bundled here on a private network (no published ports) rather
+# than run standalone. It reuses the pre-existing `ollama` Docker volume, so
+# the models (minicpm-v, bge-m3, llama3.2:3b) are not re-downloaded.
+#
+# First deploy: run migrate-from-home.sh once (moves the source + data into
+# place, removes the old standalone `ollama` container), then the Ansible
+# playbook — or `docker compose up -d --build` in this directory.
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: gramvault-ollama
+    restart: unless-stopped
+    environment:
+      # This box has 7.7 GB RAM and no swap — keep one model resident.
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_KEEP_ALIVE: "5m"
+    volumes:
+      - ollama-models:/root/.ollama
+    networks:
+      - gramvault
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "3.0"
+          memory: 5g
+
+  gramvault-atlas:
+    build:
+      context: /srv/gramvault-atlas
+      dockerfile: Dockerfile
+    image: gramvault-atlas:local
+    container_name: gramvault-atlas
+    restart: unless-stopped
+    user: "${GRAMVAULT_UID:-1000}:${GRAMVAULT_GID:-1000}"
+    depends_on:
+      ollama:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8777:8000"
+    environment:
+      - GRAMVAULT_CONFIG_PATH=/config/config.yaml
+      - GRAMVAULT_SERVER__HOST=0.0.0.0
+      - GRAMVAULT_SERVER__PORT=8000
+      - GRAMVAULT_OLLAMA__HOST=http://ollama:11434
+      - GRAMVAULT_PATHS__DB_PATH=/data/gramvault.db
+      - GRAMVAULT_PATHS__CHROMA_DIR=/data/chroma
+      - GRAMVAULT_PATHS__LIBRARY_DIR=/library
+      - GRAMVAULT_PULL__SESSION_DIR=/data/instaloader
+      - HF_HOME=/data/hf
+    volumes:
+      - /srv/homelab/gramvault-atlas/config.yaml:/config/config.yaml
+      - /srv/homelab/gramvault-atlas/secrets.yaml:/config/secrets.yaml
+      - /srv/homelab/gramvault-atlas/data:/data
+      - /srv/homelab/gramvault-atlas/library:/library
+      # Obsidian export (optional): mount a vault and set
+      # paths.obsidian_vault_dir: /vault  in config.yaml
+      # - /srv/homelab/nextcloud/data/<user>/files/Obsidian:/vault
+    networks:
+      - gramvault
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "3.0"
+          memory: 3g
+        reservations:
+          memory: 256m
+
+networks:
+  gramvault:
+    driver: bridge
+
+volumes:
+  ollama-models:
+    external: true
+    name: ollama

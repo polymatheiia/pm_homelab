@@ -57,6 +57,10 @@ services:
     compose_path: "{{ homelab_base }}/services/grafana"
     manage_env: true
     port: 3030
+  - name: gramvault-atlas
+    compose_path: "{{ homelab_base }}/services/gramvault-atlas"
+    manage_env: true
+    port: 8777
 
 bridge_manager_bridges:
   - name: sh-telegram
