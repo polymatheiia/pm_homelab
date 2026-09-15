@@ -19,28 +19,6 @@ services:
     networks:
       - glance-internal
 
-  # Glances — system + GPU stats REST API for the Lab tab GPU widget.
-  glances:
-    image: nicolargo/glances:ubuntu-latest-full
-    container_name: glance_glances
-    restart: unless-stopped
-    pid: host
-    environment:
-      GLANCES_OPT: "-w --disable-plugin connections"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - glance-internal
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    security_opt:
-      - no-new-privileges:true
-
   # iCal-events sidecar — one instance, handles all calendar fetches.
   # Image is on GHCR, not Docker Hub.
   ical-events:
@@ -74,7 +52,6 @@ services:
       - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
     depends_on:
       - dockerproxy
-      - glances
       - ical-events
     networks:
       - glance-internal

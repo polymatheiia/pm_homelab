@@ -1,0 +1,14 @@
+services:
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:2.8.0-ultra-lite
+    container_name: stirling-pdf
+    restart: unless-stopped
+    ports:
+      - "9016:8080"
+    environment:
+      - SECURITY_ENABLELOGIN=false
+    volumes:
+      - ./data:/configs
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=stirling-pdf"

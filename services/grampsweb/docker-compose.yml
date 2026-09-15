@@ -1,0 +1,74 @@
+services:
+  grampsweb:
+    image: ghcr.io/gramps-project/grampsweb:latest
+    container_name: grampsweb
+    restart: unless-stopped
+    stop_grace_period: 90s
+    ports:
+      - "9019:5000"
+    env_file: [.env]
+    environment:
+      GRAMPSWEB_TREE: "Gramps Web"
+      GRAMPSWEB_CELERY_CONFIG__broker_url: redis://grampsweb_redis:6379/0
+      GRAMPSWEB_CELERY_CONFIG__result_backend: redis://grampsweb_redis:6379/0
+      GRAMPSWEB_RATELIMIT_STORAGE_URI: redis://grampsweb_redis:6379/1
+    depends_on:
+      - grampsweb_redis
+    volumes:
+      - gramps_users:/app/users
+      - gramps_index:/app/indexdir
+      - gramps_thumb_cache:/app/thumbnail_cache
+      - gramps_cache:/app/cache
+      - gramps_secret:/app/secret
+      - gramps_db:/root/.gramps/grampsdb
+      - gramps_media:/app/media
+      - gramps_tmp:/tmp
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=grampsweb"
+
+  grampsweb_celery:
+    image: ghcr.io/gramps-project/grampsweb:latest
+    container_name: grampsweb_celery
+    restart: unless-stopped
+    stop_grace_period: 90s
+    env_file: [.env]
+    environment:
+      GRAMPSWEB_TREE: "Gramps Web"
+      GRAMPSWEB_CELERY_CONFIG__broker_url: redis://grampsweb_redis:6379/0
+      GRAMPSWEB_CELERY_CONFIG__result_backend: redis://grampsweb_redis:6379/0
+      GRAMPSWEB_RATELIMIT_STORAGE_URI: redis://grampsweb_redis:6379/1
+    depends_on:
+      - grampsweb
+      - grampsweb_redis
+    command: celery -A gramps_webapi.celery worker --loglevel=INFO --concurrency=2
+    volumes:
+      - gramps_users:/app/users
+      - gramps_index:/app/indexdir
+      - gramps_thumb_cache:/app/thumbnail_cache
+      - gramps_cache:/app/cache
+      - gramps_secret:/app/secret
+      - gramps_db:/root/.gramps/grampsdb
+      - gramps_media:/app/media
+      - gramps_tmp:/tmp
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=grampsweb"
+
+  grampsweb_redis:
+    image: docker.io/valkey/valkey:8-alpine
+    container_name: grampsweb_redis
+    restart: unless-stopped
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=grampsweb"
+
+volumes:
+  gramps_users:
+  gramps_index:
+  gramps_thumb_cache:
+  gramps_cache:
+  gramps_secret:
+  gramps_db:
+  gramps_media:
+  gramps_tmp:

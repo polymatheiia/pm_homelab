@@ -1,0 +1,18 @@
+services:
+  atheos:
+    image: hlsiira/atheos:latest
+    container_name: atheos
+    restart: unless-stopped
+    stop_grace_period: 60s
+    ports:
+      - "9017:80"
+    volumes:
+      - data:/var/www/html
+      - apache_conf:/etc/apache2
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=atheos"
+
+volumes:
+  data: {}
+  apache_conf: {}

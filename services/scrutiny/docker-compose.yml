@@ -1,0 +1,25 @@
+services:
+  scrutiny:
+    image: ghcr.io/analogj/scrutiny:v0.9.4-omnibus
+    container_name: scrutiny
+    restart: unless-stopped
+    ports:
+      - "9014:8080"
+    cap_add:
+      - SYS_RAWIO
+      # Uncomment if monitoring NVMe drives:
+      # - SYS_ADMIN
+    volumes:
+      - ./config:/opt/scrutiny/config
+      - ./influxdb:/opt/scrutiny/influxdb
+      - /run/udev:/run/udev:ro
+    devices:
+      # sda/sdb are the physical disks (Samsung HDD, Maxtor SSD) per `lsblk`/
+      # /dev/disk/by-id on this host at deploy time. sdc is a USB flash disk
+      # and is intentionally excluded (SMART data isn't meaningful for it).
+      # Host-specific: re-check `lsblk -d` / /dev/disk/by-id if disks change.
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=scrutiny"

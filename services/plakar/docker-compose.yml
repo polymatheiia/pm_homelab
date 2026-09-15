@@ -1,0 +1,51 @@
+# NOTE ON FIT: Plakar is fundamentally a CLI backup tool (github.com/PlakarKorp/plakar).
+# It has no official pre-built Docker image (only community ones, e.g. barcus/plakar,
+# which we deliberately do NOT use). The official repo DOES ship a Dockerfile
+# (ENTRYPOINT ["plakar"]), so we build from source instead of inventing an image.
+# This host has no buildx/BuildKit installed, and upstream's Dockerfile only
+# builds cleanly under BuildKit's lazy stage evaluation (one of its 4 stages
+# expects a binary injected by GoReleaser's CI, which a plain git-clone build
+# context doesn't have). ./Dockerfile here is a local wrapper that reproduces
+# just upstream's documented "build from source" stages so it builds with the
+# legacy builder on this host.
+#
+# `plakar ui` is an interactive session command: by default it binds to a RANDOM
+# localhost port unless you pass an explicit address:port, and it is meant to be
+# launched and used on demand, not run as a standing daemon. There is also a
+# `plakar server` mode for serving a Kloset repository over the network (repo
+# access, not a browsable UI).
+#
+# Because of this, "port 9021 gated behind Sablier" does NOT really fit Plakar's
+# model the way it fits a normal HTTP service: waking the container via Sablier
+# does not, by itself, make anything listen on 9021 — the process just sleeps.
+# This compose file wakes an idle container (Sablier-gated like the rest of
+# group D) that you then exec into to run backup/restore commands or start the
+# UI bound to the fixed port below. Example usage once Sablier has woken the
+# container:
+#   docker exec -it plakar plakar create                 # inits ~/.plakar (encrypted by default)
+#   docker exec -it plakar plakar backup /home/plakar/backups
+#   docker exec -it plakar plakar ui 0.0.0.0:9021
+# No .env is needed: Plakar has no secrets/admin credentials of its own.
+#
+# Verified on this host: image builds and `plakar version`/`plakar create`
+# run correctly inside the container. The image's "plakar" user is uid 100/
+# gid 101 (Alpine system user), not the host's uid — the ./backups and ./repo
+# bind mounts were chmod 777'd so the container user can write to them;
+# tighten this to a matching uid/gid if you'd rather not use 777.
+services:
+  plakar:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: plakar-local:latest
+    container_name: plakar
+    restart: unless-stopped
+    entrypoint: ["sleep", "infinity"]
+    ports:
+      - "9021:9021"
+    volumes:
+      - ./backups:/home/plakar/backups
+      - ./repo:/home/plakar/.plakar
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=plakar"

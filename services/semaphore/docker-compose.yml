@@ -1,0 +1,18 @@
+services:
+  semaphore:
+    image: semaphoreui/semaphore:latest
+    container_name: semaphore
+    restart: unless-stopped
+    ports:
+      - "9010:3000"
+    env_file: [.env]
+    volumes:
+      - data:/etc/semaphore
+      - config:/var/lib/semaphore
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=semaphore"
+
+volumes:
+  data: {}
+  config: {}

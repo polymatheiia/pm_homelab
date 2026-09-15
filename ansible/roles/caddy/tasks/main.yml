@@ -3,6 +3,47 @@
     name: caddy
     state: present
 
+- name: Check current custom Caddy build version marker
+  stat:
+    path: /usr/local/bin/caddy-sablier
+  register: caddy_sablier_bin
+
+- name: Build custom Caddy with Sablier plugin (via caddy:builder image)
+  command: >
+    docker run --rm -v {{ homelab_base }}/build:/out caddy:builder
+    xcaddy build --with github.com/sablierapp/sablier-caddy-plugin@latest
+    --output /out/caddy-sablier
+  args:
+    creates: "{{ homelab_base }}/build/caddy-sablier"
+
+- name: Install custom Caddy-Sablier binary
+  copy:
+    src: "{{ homelab_base }}/build/caddy-sablier"
+    dest: /usr/local/bin/caddy-sablier
+    remote_src: yes
+    owner: root
+    group: root
+    mode: '0755'
+  notify: Restart Caddy
+
+- name: Deploy Caddy systemd override to use the custom Sablier-enabled binary
+  copy:
+    content: |
+      [Service]
+      ExecStartPre=
+      ExecStartPre=/usr/local/bin/caddy-sablier validate --config /etc/caddy/Caddyfile
+      ExecStart=
+      ExecStart=/usr/local/bin/caddy-sablier run --config /etc/caddy/Caddyfile
+      ExecReload=
+      ExecReload=/usr/local/bin/caddy-sablier reload --config /etc/caddy/Caddyfile --force
+    dest: /etc/systemd/system/caddy.service.d/20-sablier-binary.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd daemon
+    - Restart Caddy
+
 - name: Create Caddy config directory
   file:
     path: /etc/caddy
