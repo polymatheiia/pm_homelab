@@ -15,6 +15,12 @@ services:
     volumes:
       - cache:/usr/src/app/cache
     networks: [activepieces-internal]
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:80/api/v1/flags"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=activepieces"
@@ -32,6 +38,12 @@ services:
     volumes:
       - cache:/usr/src/app/cache
     networks: [activepieces-internal]
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "worker/dist/src/bootstrap.js"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=activepieces"
@@ -48,6 +60,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks: [activepieces-internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AP_POSTGRES_USERNAME}"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=activepieces"
@@ -59,6 +77,12 @@ services:
     volumes:
       - redis_data:/data
     networks: [activepieces-internal]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=activepieces"

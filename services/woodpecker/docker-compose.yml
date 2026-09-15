@@ -12,6 +12,13 @@ services:
     volumes:
       - data:/var/lib/woodpecker
     networks: [woodpecker-internal]
+    healthcheck:
+      # No shell/curl/wget in this image; the binary has its own ping subcommand.
+      test: ["CMD", "/bin/woodpecker-server", "ping"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=woodpecker"
@@ -29,6 +36,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks: [woodpecker-internal]
+    healthcheck:
+      test: ["CMD", "/bin/woodpecker-agent", "ping"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=woodpecker"

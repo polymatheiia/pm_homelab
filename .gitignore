@@ -27,6 +27,7 @@ services/*/files/
 services/*/library/
 services/plakar/repo/
 services/scrutiny/influxdb/
+services/scrutiny/config/scrutiny.db
 
 # bridge-manager runtime (cloned + built by Ansible)
 /bridge-manager/

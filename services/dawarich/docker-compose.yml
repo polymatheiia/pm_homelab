@@ -85,7 +85,11 @@ services:
       STORE_GEODATA: "true"
       WEB_CONCURRENCY: 1
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO - http://127.0.0.1:3000/api/v1/health | grep -q '\"status\"\\s*:\\s*\"ok\"'"]
+      # APPLICATION_PROTOCOL=https makes the app 301-redirect plain HTTP to
+      # HTTPS (it's behind Caddy which terminates TLS), which breaks a plain
+      # wget since Puma on :3000 only speaks HTTP. Sending the same
+      # X-Forwarded-Proto header Caddy sends avoids the redirect.
+      test: ["CMD-SHELL", "wget -qO - --header='X-Forwarded-Proto: https' http://127.0.0.1:3000/api/v1/health | grep -q '\"status\"\\s*:\\s*\"ok\"'"]
       interval: 10s
       retries: 30
       start_period: 30s
