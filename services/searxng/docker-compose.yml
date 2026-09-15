@@ -17,6 +17,11 @@ services:
       - CHOWN
       - SETGID
       - SETUID
+    labels:
+      - "glance.name=SearXNG"
+      - "glance.icon=si:searxng"
+      - "glance.url=https://searxng.lab"
+      - "glance.category=core"
 
   valkey:
     image: valkey/valkey:8-alpine

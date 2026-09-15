@@ -55,6 +55,10 @@ services:
     depends_on:
       ollama:
         condition: service_started
+    labels:
+      - "glance.name=GramVault Atlas"
+      - "glance.url=https://gramvault-atlas.lab"
+      - "glance.category=core"
     ports:
       - "127.0.0.1:8777:8000"
     environment:

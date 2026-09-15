@@ -13,6 +13,11 @@ services:
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    labels:
+      - "glance.name=Immich"
+      - "glance.icon=si:immich"
+      - "glance.url=https://immich.lab"
+      - "glance.category=core"
     extends:
       file: hwaccel.transcoding.yml
       service: nvenc # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding

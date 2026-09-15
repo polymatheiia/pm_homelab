@@ -29,6 +29,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=droppedneedle"
+      - "glance.name=DroppedNeedle"
+      - "glance.url=https://droppedneedle.lab"
+      - "glance.category=on-demand"
 
 volumes:
   config:

@@ -3,6 +3,11 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     restart: unless-stopped
+    labels:
+      - "glance.name=Prometheus"
+      - "glance.icon=si:prometheus"
+      - "glance.url=https://prometheus.lab"
+      - "glance.category=core"
     ports:
       - "9012:9090"
     volumes:

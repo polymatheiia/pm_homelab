@@ -45,6 +45,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=splitpro"
+      - "glance.name=SplitPro"
+      - "glance.url=https://splitpro.lab"
+      - "glance.category=on-demand"
 
 volumes:
   database:

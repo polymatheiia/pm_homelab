@@ -29,3 +29,6 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=scrutiny"
+      - "glance.name=Scrutiny"
+      - "glance.url=https://scrutiny.lab"
+      - "glance.category=on-demand"

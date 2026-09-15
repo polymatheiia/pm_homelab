@@ -4,6 +4,11 @@ services:
     container_name: syncthing
     restart: unless-stopped
     hostname: syncthing
+    labels:
+      - "glance.name=Syncthing"
+      - "glance.icon=si:syncthing"
+      - "glance.url=https://syncthing.lab"
+      - "glance.category=core"
     ports:
       - "9007:8384"       # Web GUI
       - "22000:22000/tcp" # sync protocol (TCP)

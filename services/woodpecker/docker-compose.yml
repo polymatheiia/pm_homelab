@@ -22,6 +22,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=woodpecker"
+      - "glance.name=Woodpecker CI"
+      - "glance.url=https://woodpecker.lab"
+      - "glance.category=on-demand"
 
   agent:
     image: woodpeckerci/woodpecker-agent:v3

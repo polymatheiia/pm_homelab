@@ -367,29 +367,24 @@ pages:
             username: ${ADGUARD_USER}
             password: ${ADGUARD_PASSWORD}
 
-          - type: monitor
-            title: Services
-            cache: 1m
-            sites:
-              - title: Immich
-                url: http://100.117.222.10:2283
-                icon: si:immich
-              - title: Navidrome
-                url: http://100.117.222.10:4533
-                icon: si:navidrome
-              - title: Nextcloud
-                url: http://100.117.222.10:8000
-                icon: si:nextcloud
-              - title: Karakeep
-                url: http://100.117.222.10:3000
-              - title: SearXNG
-                url: http://100.117.222.10:8888
-                icon: si:searxng
-              - title: Sparky
-                url: http://100.117.222.10:3004
-              - title: AdGuard
-                url: http://100.117.222.10:3080
-                icon: si:adguard
+          # category alone narrows this to just the containers carrying a
+          # glance.category label (see per-service docker-compose.yml files);
+          # hide-by-default isn't needed and would additionally require a
+          # glance.hide=false label on every one of them.
+          - type: docker-containers
+            title: Core Services
+            category: core
+            running-only: false
+            sock-path: tcp://dockerproxy:2375
+
+          # On-demand (Sablier-gated): "stopped" here is the normal resting
+          # state — Sablier scales these to zero when idle. Clicking through
+          # to the .lab URL wakes the container regardless of what's shown.
+          - type: docker-containers
+            title: On-Demand Services
+            category: on-demand
+            running-only: false
+            sock-path: tcp://dockerproxy:2375
 
   # ======================
   # UNIVERSITY (unchanged)

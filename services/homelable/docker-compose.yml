@@ -44,6 +44,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=homelable"
+      - "glance.name=Homelable"
+      - "glance.url=https://homelable.lab"
+      - "glance.category=on-demand"
 
   mcp:
     image: ghcr.io/pouzor/homelable-mcp:latest

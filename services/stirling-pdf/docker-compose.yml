@@ -18,3 +18,6 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=stirling-pdf"
+      - "glance.name=Stirling PDF"
+      - "glance.url=https://stirling-pdf.lab"
+      - "glance.category=on-demand"

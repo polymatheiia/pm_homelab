@@ -20,6 +20,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=atheos"
+      - "glance.name=Atheos"
+      - "glance.url=https://atheos.lab"
+      - "glance.category=on-demand"
 
 volumes:
   data: {}

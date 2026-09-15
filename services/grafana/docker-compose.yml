@@ -22,6 +22,10 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=grafana"
+      - "glance.name=Grafana"
+      - "glance.icon=si:grafana"
+      - "glance.url=https://grafana.lab"
+      - "glance.category=on-demand"
 
 volumes:
   data:

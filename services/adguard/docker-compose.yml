@@ -3,6 +3,11 @@ services:
     image: adguard/adguardhome:latest
     container_name: adguard
     restart: unless-stopped
+    labels:
+      - "glance.name=AdGuard Home"
+      - "glance.icon=si:adguard"
+      - "glance.url=https://adguard.lab"
+      - "glance.category=core"
     ports:
       - "${TAILSCALE_IP}:53:53/tcp"
       - "${TAILSCALE_IP}:53:53/udp"
