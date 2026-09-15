@@ -140,6 +140,10 @@ services:
 
   sparkyfitness-frontend:
     image: codewithcj/sparkyfitness:latest # Use pre-built image
+    labels:
+      - "glance.name=Sparky Fitness"
+      - "glance.url=https://sparky.lab"
+      - "glance.category=core"
     ports:
       # Container port must track NGINX_LISTEN_PORT, or nginx listens on an
       # unpublished port and the app becomes unreachable.

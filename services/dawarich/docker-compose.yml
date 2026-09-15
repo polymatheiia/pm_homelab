@@ -104,6 +104,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=dawarich"
+      - "glance.name=Dawarich"
+      - "glance.url=https://dawarich.lab"
+      - "glance.category=on-demand"
 
   dawarich_sidekiq:
     image: freikin/dawarich:latest

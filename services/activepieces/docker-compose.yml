@@ -24,6 +24,10 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=activepieces"
+      - "glance.name=Activepieces"
+      - "glance.icon=si:activepieces"
+      - "glance.url=https://activepieces.lab"
+      - "glance.category=on-demand"
 
   worker:
     image: ghcr.io/activepieces/activepieces:0.91.0

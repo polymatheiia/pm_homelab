@@ -19,3 +19,8 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    labels:
+      - "glance.name=Navidrome"
+      - "glance.icon=si:navidrome"
+      - "glance.url=https://navidrome.lab"
+      - "glance.category=core"

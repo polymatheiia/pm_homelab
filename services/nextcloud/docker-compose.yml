@@ -32,6 +32,11 @@ services:
     image: nextcloud:33
     container_name: nextcloud-compose
     restart: always
+    labels:
+      - "glance.name=Nextcloud"
+      - "glance.icon=si:nextcloud"
+      - "glance.url=https://nextcloud.lab"
+      - "glance.category=core"
     ports:
       - "8000:80"
     depends_on:

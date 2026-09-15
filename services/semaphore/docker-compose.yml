@@ -18,6 +18,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=semaphore"
+      - "glance.name=Semaphore"
+      - "glance.url=https://semaphore.lab"
+      - "glance.category=on-demand"
 
 volumes:
   data: {}

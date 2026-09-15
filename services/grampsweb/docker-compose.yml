@@ -34,6 +34,9 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=grampsweb"
+      - "glance.name=Gramps Web"
+      - "glance.url=https://grampsweb.lab"
+      - "glance.category=on-demand"
 
   grampsweb_celery:
     image: ghcr.io/gramps-project/grampsweb:latest

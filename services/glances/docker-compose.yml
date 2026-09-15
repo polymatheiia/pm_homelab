@@ -20,3 +20,6 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=glances"
+      - "glance.name=Glances"
+      - "glance.url=https://glances.lab"
+      - "glance.category=on-demand"

@@ -30,6 +30,10 @@ services:
     image: ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION:-release}
     container_name: karakeep_web
     restart: unless-stopped
+    labels:
+      - "glance.name=Karakeep"
+      - "glance.url=https://karakeep.lab"
+      - "glance.category=core"
     ports:
       - "3000:3000"
     env_file:

@@ -23,6 +23,10 @@ services:
       - .env
     environment:
       DB: postgres
+    labels:
+      - "glance.name=Healthchecks"
+      - "glance.url=https://healthchecks.lab"
+      - "glance.category=core"
     ports:
       - "9013:8000"
     depends_on:

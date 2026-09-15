@@ -6,5 +6,9 @@ services:
     image: ghcr.io/krelltunez/dayglance:latest
     container_name: dayglance
     restart: unless-stopped
+    labels:
+      - "glance.name=dayGLANCE"
+      - "glance.url=https://dayglance.lab"
+      - "glance.category=core"
     ports:
       - "9018:80"

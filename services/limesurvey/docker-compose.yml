@@ -54,6 +54,10 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=limesurvey"
+      - "glance.name=LimeSurvey"
+      - "glance.icon=si:limesurvey"
+      - "glance.url=https://limesurvey.lab"
+      - "glance.category=on-demand"
 
 volumes:
   db:

@@ -57,3 +57,7 @@ services:
     labels:
       - "sablier.enable=true"
       - "sablier.group=plakar"
+      # No web UI (see healthcheck note above) — name/category only, no
+      # glance.url, so the dashboard doesn't offer a dead link.
+      - "glance.name=Plakar"
+      - "glance.category=on-demand"
