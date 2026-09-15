@@ -10,6 +10,10 @@ services:
     compose_path: "{{ homelab_base }}/services/immich"
     manage_env: true
     port: 2283
+    # Postgres bind-mount (DB_DATA_LOCATION); owned by the container's
+    # postgres uid, not homelab_user. Never let the sync task chown it.
+    sync_excludes:
+      - postgres-data
   - name: navidrome
     compose_path: "{{ homelab_base }}/services/navidrome"
     manage_env: false
@@ -41,6 +45,10 @@ services:
     manage_env: true
     port: 3004
     backend_port: 3010
+    # Postgres bind-mount (DB_PATH); owned by the container's postgres uid,
+    # not homelab_user. Never let the sync task chown it.
+    sync_excludes:
+      - postgresql
   - name: gramvault-atlas
     compose_path: "{{ homelab_base }}/services/gramvault-atlas"
     manage_env: true
@@ -75,6 +83,10 @@ services:
     compose_path: "{{ homelab_base }}/services/healthchecks"
     manage_env: true
     port: 9013
+    # Postgres bind-mount (DB_DATA_LOCATION); owned by the container's
+    # postgres uid, not homelab_user. Never let the sync task chown it.
+    sync_excludes:
+      - postgres-data
   - name: dayglance
     compose_path: "{{ homelab_base }}/services/dayglance"
     manage_env: false
