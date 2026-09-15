@@ -13,6 +13,12 @@ services:
           memory: 1000M
     volumes:
       - mealie-data:/app/data/
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:9000/api/app/about"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=mealie"

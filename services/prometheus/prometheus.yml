@@ -8,3 +8,9 @@ scrape_configs:
   - job_name: prometheus
     static_configs:
       - targets: ["localhost:9090"]
+  - job_name: sablier
+    # sablier's port is bound only to 127.0.0.1 and the tailscale interface
+    # (not 0.0.0.0), so this container reaches it via the host's tailscale IP
+    # rather than host.docker.internal.
+    static_configs:
+      - targets: ["100.117.222.10:10000"]

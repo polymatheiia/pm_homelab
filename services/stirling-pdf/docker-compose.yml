@@ -9,6 +9,12 @@ services:
       - SECURITY_ENABLELOGIN=false
     volumes:
       - ./data:/configs
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/api/v1/info/status"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=stirling-pdf"

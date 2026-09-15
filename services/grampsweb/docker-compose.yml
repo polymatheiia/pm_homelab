@@ -23,6 +23,14 @@ services:
       - gramps_db:/root/.gramps/grampsdb
       - gramps_media:/app/media
       - gramps_tmp:/tmp
+    healthcheck:
+      # /api/metadata/ (and most /api/ routes) need auth; root serves the
+      # frontend index unauthenticated, so it's a reliable liveness check.
+      test: ["CMD", "wget", "--spider", "-q", "-T5", "http://127.0.0.1:5000/"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=grampsweb"
@@ -51,6 +59,12 @@ services:
       - gramps_db:/root/.gramps/grampsdb
       - gramps_media:/app/media
       - gramps_tmp:/tmp
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "celery"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=grampsweb"
@@ -59,6 +73,12 @@ services:
     image: docker.io/valkey/valkey:8-alpine
     container_name: grampsweb_redis
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=grampsweb"

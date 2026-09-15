@@ -46,6 +46,14 @@ services:
     volumes:
       - ./backups:/home/plakar/backups
       - ./repo:/home/plakar/.plakar
+    healthcheck:
+      # No HTTP server by default (see note above) — this just confirms the
+      # container's own process is alive so Sablier has a real ready signal.
+      test: ["CMD", "pgrep", "-f", "sleep infinity"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=plakar"

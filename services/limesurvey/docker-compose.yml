@@ -11,6 +11,12 @@ services:
       MARIADB_PASSWORD: ${DB_PW}
     volumes:
       - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=limesurvey"
@@ -39,6 +45,12 @@ services:
       - db
     volumes:
       - upload:/var/www/html/upload
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=limesurvey"

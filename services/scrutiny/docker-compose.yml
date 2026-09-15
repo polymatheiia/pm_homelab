@@ -20,6 +20,12 @@ services:
       # Host-specific: re-check `lsblk -d` / /dev/disk/by-id if disks change.
       - /dev/sda:/dev/sda
       - /dev/sdb:/dev/sdb
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/api/health"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=scrutiny"

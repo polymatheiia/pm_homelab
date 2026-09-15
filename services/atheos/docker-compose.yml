@@ -9,6 +9,14 @@ services:
     volumes:
       - data:/var/www/html
       - apache_conf:/etc/apache2
+    healthcheck:
+      # Image has bash + php but no curl/wget; raw TCP connect is the
+      # portable check here.
+      test: ["CMD-SHELL", "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/80'"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=atheos"

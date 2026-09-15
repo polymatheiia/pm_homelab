@@ -9,6 +9,12 @@ services:
     volumes:
       - data:/etc/semaphore
       - config:/var/lib/semaphore
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:3000/api/ping"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=semaphore"

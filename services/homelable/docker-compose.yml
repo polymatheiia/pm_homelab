@@ -14,6 +14,14 @@ services:
     # nmap/ping/traceroute need raw sockets to scan the LAN.
     cap_add:
       - NET_RAW
+    healthcheck:
+      # No unauthenticated /health route; FastAPI's /docs page needs no auth
+      # and reliably returns 200.
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8000/docs"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=homelable"
@@ -27,6 +35,12 @@ services:
     depends_on:
       - backend
     networks: [homelable-internal]
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:80/"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=homelable"
@@ -40,6 +54,13 @@ services:
     depends_on:
       - backend
     networks: [homelable-internal]
+    healthcheck:
+      # No curl/wget in this image; python3 is available.
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=5)"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
     labels:
       - "sablier.enable=true"
       - "sablier.group=homelable"
