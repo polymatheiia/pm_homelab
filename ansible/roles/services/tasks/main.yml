@@ -21,13 +21,16 @@
 
 - name: Sync service definition directory (compose + configs, excluding .env)
   # Requires rsync on controller + target (installed in docker role below)
+  # sync_excludes (set per-service in group_vars) keeps bind-mounted DB data
+  # dirs out of this entirely: compose_path and the controller's checkout are
+  # the same path on disk, so without an exclude, --chown reassigns them from
+  # the DB engine's uid to homelab_user on every run, corrupting Postgres's
+  # data-dir ownership (see homelab_ansible_freeze_2026_09_15 postmortem).
   synchronize:
     src: "{{ playbook_dir }}/../services/{{ item.name }}/"
     dest: "{{ item.compose_path }}/"
     delete: yes
-    rsync_opts:
-      - "--exclude=.env"
-      - "--chown={{ homelab_user }}:{{ homelab_user }}"
+    rsync_opts: "{{ ['--exclude=.env'] + (item.sync_excludes | default([]) | map('regex_replace', '^', '--exclude=') | list) + ['--chown=' + homelab_user + ':' + homelab_user] }}"
   loop: "{{ services }}"
   loop_control:
     label: "{{ item.name }}"
