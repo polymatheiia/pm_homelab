@@ -1,0 +1,10 @@
+# dayGLANCE: https://github.com/krelltunez/dayGLANCE
+# Official pre-built image, confirmed present on GHCR (linux/amd64 + linux/arm64):
+# https://github.com/krelltunez/dayGLANCE/pkgs/container/dayglance
+services:
+  dayglance:
+    image: ghcr.io/krelltunez/dayglance:latest
+    container_name: dayglance
+    restart: unless-stopped
+    ports:
+      - "9018:80"

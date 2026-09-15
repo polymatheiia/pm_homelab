@@ -1,0 +1,29 @@
+# Adapted from the official self-hosting example:
+# https://github.com/healthchecks/healthchecks/blob/master/docker/docker-compose.yml
+# https://healthchecks.io/docs/self_hosted_docker/
+services:
+  db:
+    image: postgres:16
+    container_name: healthchecks_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
+
+  web:
+    image: healthchecks/healthchecks:latest
+    container_name: healthchecks_web
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB: postgres
+    ports:
+      - "9013:8000"
+    depends_on:
+      - db

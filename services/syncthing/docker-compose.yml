@@ -1,0 +1,18 @@
+services:
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    hostname: syncthing
+    ports:
+      - "9007:8384"       # Web GUI
+      - "22000:22000/tcp" # sync protocol (TCP)
+      - "22000:22000/udp" # sync protocol (QUIC)
+      - "21027:21027/udp" # local discovery broadcast
+    volumes:
+      # Single home dir: holds config, index DB, and default sync folders.
+      # Add extra bind mounts here if you want specific sync folders on the host.
+      - data:/var/syncthing
+
+volumes:
+  data:

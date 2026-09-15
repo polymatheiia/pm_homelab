@@ -1,0 +1,21 @@
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:v3.26.0
+    container_name: mealie
+    restart: unless-stopped
+    stop_grace_period: 60s
+    ports:
+      - "9001:9000"
+    env_file: [.env]
+    deploy:
+      resources:
+        limits:
+          memory: 1000M
+    volumes:
+      - mealie-data:/app/data/
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=mealie"
+
+volumes:
+  mealie-data:

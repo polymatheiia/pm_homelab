@@ -1,0 +1,19 @@
+# roles/services/tasks/deploy_gated_service.yml
+# Runs present-then-stop for a single Sablier-gated service, so this one
+# service's containers are up only briefly before being stopped, rather than
+# all gated services running together while the rest of the loop finishes.
+
+- name: Start {{ gated_service.name }} to create its containers
+  community.docker.docker_compose_v2:
+    project_src: "{{ gated_service.compose_path }}"
+    state: present
+
+- name: Stop {{ gated_service.name }} immediately after creation
+  # Default compose stop grace period (10s) can be too short for apps still
+  # finishing startup/migrations, forcing a SIGKILL instead of a clean exit.
+  # A SQLite-backed service survived that fine, but give every gated service
+  # real time to shut down cleanly rather than relying on that being lucky.
+  community.docker.docker_compose_v2:
+    project_src: "{{ gated_service.compose_path }}"
+    state: stopped
+    timeout: 90

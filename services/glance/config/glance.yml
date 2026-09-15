@@ -356,38 +356,6 @@ pages:
               - type: local
                 name: forestmachine
 
-          - type: custom-api
-            title: GPU
-            cache: 30s
-            url: http://glances:61208/api/4/gpu
-            template: |
-              {{ $gpus := .JSON.Array "" }}
-              {{ if not $gpus }}
-                <p class="color-subdue">No GPU data.</p>
-              {{ else }}
-                {{ range $gpus }}
-                  <ul class="list-gap-2 margin-block-end-4">
-                    <li class="size-h4 color-highlight">{{ .String "name" }}</li>
-                    <li class="flex items-center justify-between">
-                      <span class="color-subdue">GPU Load</span>
-                      <span>{{ .Int "proc" }}%</span>
-                    </li>
-                    <li class="flex items-center justify-between">
-                      <span class="color-subdue">VRAM</span>
-                      <span>{{ .Float "mem" | printf "%.0f" }}%</span>
-                    </li>
-                    <li class="flex items-center justify-between">
-                      <span class="color-subdue">Temp</span>
-                      <span>{{ .Int "temperature" }}°C</span>
-                    </li>
-                    <li class="flex items-center justify-between">
-                      <span class="color-subdue">Fan</span>
-                      <span>{{ .Int "fan_speed" }}%</span>
-                    </li>
-                  </ul>
-                {{ end }}
-              {{ end }}
-
       # ---- CENTER full ----
       - size: full
         widgets:

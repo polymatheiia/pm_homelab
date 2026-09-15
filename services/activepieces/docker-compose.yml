@@ -1,0 +1,72 @@
+services:
+  app:
+    image: ghcr.io/activepieces/activepieces:0.91.0
+    container_name: activepieces_app
+    restart: unless-stopped
+    stop_grace_period: 90s
+    ports:
+      - "9009:80"
+    depends_on:
+      - postgres
+      - redis
+    env_file: [.env]
+    environment:
+      AP_CONTAINER_TYPE: APP
+    volumes:
+      - cache:/usr/src/app/cache
+    networks: [activepieces-internal]
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=activepieces"
+
+  worker:
+    image: ghcr.io/activepieces/activepieces:0.91.0
+    container_name: activepieces_worker
+    restart: unless-stopped
+    stop_grace_period: 90s
+    depends_on:
+      - app
+    env_file: [.env]
+    environment:
+      AP_CONTAINER_TYPE: WORKER
+    volumes:
+      - cache:/usr/src/app/cache
+    networks: [activepieces-internal]
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=activepieces"
+
+  postgres:
+    image: pgvector/pgvector:0.8.0-pg14
+    container_name: activepieces_postgres
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_DB: ${AP_POSTGRES_DATABASE}
+      POSTGRES_USER: ${AP_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${AP_POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [activepieces-internal]
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=activepieces"
+
+  redis:
+    image: redis:7.0.7
+    container_name: activepieces_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks: [activepieces-internal]
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=activepieces"
+
+volumes:
+  cache: {}
+  postgres_data: {}
+  redis_data: {}
+
+networks:
+  activepieces-internal: {}

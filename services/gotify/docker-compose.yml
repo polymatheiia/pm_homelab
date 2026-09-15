@@ -1,0 +1,14 @@
+services:
+  gotify:
+    image: gotify/server:latest
+    container_name: gotify
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "9004:80"
+    volumes:
+      - data:/app/data
+
+volumes:
+  data:

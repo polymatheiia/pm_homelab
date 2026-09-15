@@ -8,9 +8,9 @@
       when: ansible_facts['distribution'] != 'Archlinux'
 
   roles:
-    - docker
-    - caddy
-    - adguard
-    - services
-    - nextcloud
-    - bridge-manager
+    - { role: docker, tags: docker }
+    - { role: caddy, tags: caddy }
+    - { role: adguard, tags: adguard }
+    - { role: services, tags: services }
+    - { role: nextcloud, tags: nextcloud }
+    - { role: bridge-manager, tags: bridge-manager }

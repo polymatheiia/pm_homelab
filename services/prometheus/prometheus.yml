@@ -1,0 +1,10 @@
+# Minimal starting config: just scrapes Prometheus itself.
+# TODO: add scrape targets for other services (Grafana, node_exporter,
+# cadvisor, etc.) as they come online — add a new job under scrape_configs.
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

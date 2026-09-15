@@ -1,0 +1,51 @@
+name: splitpro
+
+services:
+  postgres:
+    image: ossapps/postgres:17.7-trixie
+    container_name: splitpro-db
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-splitpro}
+      POSTGRES_PORT: 5432
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_cron
+      -c cron.database_name=${POSTGRES_DB:-splitpro}
+      -c cron.timezone=UTC
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-splitpro}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - database:/var/lib/postgresql/data
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=splitpro"
+
+  splitpro:
+    image: ossapps/splitpro:latest
+    container_name: splitpro
+    restart: unless-stopped
+    ports:
+      - "9023:3000"
+    env_file: [.env]
+    environment:
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=splitpro"
+
+volumes:
+  database:
+  uploads:

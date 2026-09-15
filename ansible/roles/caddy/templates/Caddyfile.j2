@@ -1,8 +1,10 @@
 {
     admin unix//run/caddy/admin.socket
+    order sablier before reverse_proxy
 }
 
 {% for service in services %}
+{% if not (service.no_vhost is defined and service.no_vhost) %}
 {{ service.name }}.lab {
 {% if tailscale_ip %}
     bind {{ tailscale_ip }}
@@ -26,11 +28,31 @@
     }
 
     handle {
+{% if service.sablier is defined and service.sablier %}
+        sablier http://127.0.0.1:10000 {
+            group {{ service.sablier_group | default(service.name) }}
+            session_duration {{ service.sablier_session_duration | default('15m') }}
+            dynamic {
+                display_name {{ service.sablier_display_name | default(service.name) }}
+                theme hacker-terminal
+            }
+        }
+{% endif %}
         reverse_proxy 127.0.0.1:{{ service.port }} {
             header_up X-Forwarded-Proto https
         }
     }
 {% else %}
+{% if service.sablier is defined and service.sablier %}
+    sablier http://127.0.0.1:10000 {
+        group {{ service.sablier_group | default(service.name) }}
+        session_duration {{ service.sablier_session_duration | default('15m') }}
+        dynamic {
+            display_name {{ service.sablier_display_name | default(service.name) }}
+            theme hacker-terminal
+        }
+    }
+{% endif %}
     reverse_proxy 127.0.0.1:{{ service.port }} {
         header_up X-Forwarded-Proto https
     }
@@ -45,4 +67,5 @@
 {% endif %}
     }
 }
+{% endif %}
 {% endfor %}

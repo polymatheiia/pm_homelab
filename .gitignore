@@ -25,6 +25,11 @@ Thumbs.db
 services/*/*data/
 services/*/files/
 services/*/library/
+services/plakar/repo/
+services/scrutiny/influxdb/
 
 # bridge-manager runtime (cloned + built by Ansible)
 /bridge-manager/
+
+# Custom Caddy binary built by the caddy role (xcaddy build output)
+/build/

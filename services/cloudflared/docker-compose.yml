@@ -1,0 +1,9 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: tunnel --no-autoupdate run --token $TUNNEL_TOKEN
+    # No ports mapped: this is an outbound-only tunnel to Cloudflare's edge.
