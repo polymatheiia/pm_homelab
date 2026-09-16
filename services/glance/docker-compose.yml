@@ -47,9 +47,10 @@ services:
       # AdGuard credentials — set in .env
       - ADGUARD_USER=${ADGUARD_USER}
       - ADGUARD_PASSWORD=${ADGUARD_PASSWORD}
-      # Nextcloud CalDAV credentials — set in .env
-      - NEXTCLOUD_USER=${NEXTCLOUD_USER}
-      - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
+      # Calendar ICS feed URLs — set in .env. Nextcloud CalDAV retired.
+      - PROTON_CALENDAR_ICS_URL=${PROTON_CALENDAR_ICS_URL}
+      - USOS_ICAL_URL=${USOS_ICAL_URL}
+      - MIM_CALENDAR_ICS_URL=${MIM_CALENDAR_ICS_URL}
     depends_on:
       - dockerproxy
       - ical-events

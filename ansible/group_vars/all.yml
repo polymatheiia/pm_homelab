@@ -27,10 +27,6 @@ services:
     compose_path: "{{ homelab_base }}/services/karakeep"
     manage_env: true
     port: 3000
-  - name: nextcloud
-    compose_path: "{{ homelab_base }}/services/nextcloud"
-    manage_env: true
-    port: 8000
   - name: adguard
     compose_path: "{{ homelab_base }}/services/adguard"
     manage_env: false
