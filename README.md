@@ -79,7 +79,6 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Navidrome       | 4533          | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
 | Karakeep        | 3000          | Docker volumes                       | yes |
 | Glance          | 8080          | config files in repo                 | yes |
-| Nextcloud       | 8000          | Docker volumes                       | yes |
 | AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
 | SearXNG         | 8888          | stateless (config in repo)           | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
