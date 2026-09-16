@@ -141,6 +141,7 @@ the last request before Sablier stops it again.
 | Mealie       | 9001 | Recipe manager                             | 30m |
 | dawarich     | 9002 | Location history / life-logging            | 15m |
 | DroppedNeedle| 9003 | Music acquisition (replaces Lidarr)        | 30m |
+| Calibre-Web  | 9008 | Ebook library browser/reader (OPDS), reads /srv/pm_files/Books/Calibre Library read-only | 15m |
 | homelable    | 9006 | Network topology visualizer                | 15m |
 | Activepieces | 9009 | Workflow automation                        | 20m |
 | Semaphore UI | 9010 | Ansible UI / automation runner             | 20m |

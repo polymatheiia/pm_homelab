@@ -1,0 +1,27 @@
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    restart: unless-stopped
+    env_file: [.env]
+    ports:
+      - "9008:8083"
+    volumes:
+      - config:/config
+      - /srv/pm_files/Books/Calibre Library:/books:ro
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8083/"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=calibre-web"
+      - "glance.name=Calibre-Web"
+      - "glance.icon=si:librarything"
+      - "glance.url=https://calibre-web.lab"
+      - "glance.category=on-demand"
+
+volumes:
+  config:
