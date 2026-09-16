@@ -26,9 +26,6 @@ pages:
       - size: small
         widgets:
 
-          - type: clock
-            hour-format: 24h
-
           - type: weather
             title: Warsaw
             location: Warsaw, Poland
@@ -128,6 +125,11 @@ pages:
       - size: full
         widgets:
 
+          # Moved from the left column so both flanking columns balance at
+          # 3 widgets each instead of 4-vs-3.
+          - type: clock
+            hour-format: 24h
+
           - type: group
             widgets:
               - type: rss
@@ -157,12 +159,9 @@ pages:
                   - url: https://www.theguardian.com/world/rss
                     title: Guardian
 
-          - type: calendar
-            first-day-of-week: monday
-
-          # Calendar: 6 subrequests to ical-events sidecar, one per calendar.
-          # The sidecar fetches ICS via CalDAV export URL with basic auth.
-          # All creds passed as query params — safe because ical-events is
+          # Today's agenda: 3 requests to the ical-events sidecar (personal
+          # Proton share-link, USOS, "mim" Google Calendar), each a direct
+          # ICS URL passed as a query param — safe because ical-events is
           # on the internal Docker network, never exposed to host.
           - type: custom-api
             title: Today
@@ -319,16 +318,22 @@ pages:
               - type: local
                 name: forestmachine
 
-      # ---- CENTER full ----
-      - size: full
-        widgets:
-
+          # Narrower column than before (was alone in a "full" column) so
+          # its chart doesn't stretch into the large empty area that used
+          # to push the service grids far down the page.
           - type: dns-stats
             title: AdGuard
             service: adguard
             url: http://100.117.222.10:3080
             username: ${ADGUARD_USER}
             password: ${ADGUARD_PASSWORD}
+
+      # ---- RIGHT full ----
+      # Service grids now sit beside System/AdGuard instead of stacked
+      # below them, so they render at the top of the page regardless of
+      # how tall AdGuard's widget is.
+      - size: full
+        widgets:
 
           # category alone narrows this to just the containers carrying a
           # glance.category label (see per-service docker-compose.yml files);
