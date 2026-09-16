@@ -207,6 +207,12 @@ services:
     port: 9026
     sablier: true
     sablier_session_duration: 20m
+  - name: calibre-web
+    compose_path: "{{ homelab_base }}/services/calibre-web"
+    manage_env: true
+    port: 9008
+    sablier: true
+    sablier_session_duration: 15m
   # FreedomBox deliberately excluded: no viable Docker deployment exists (the
   # official containerization project was archived 2019 — /etc/resolv.conf
   # locking, requires a reboot mid-install, LDAP breaks). FreedomBox is
