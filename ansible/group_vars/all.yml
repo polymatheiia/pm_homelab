@@ -189,6 +189,34 @@ services:
     port: 9023
     sablier: true
     sablier_session_duration: 15m
+  - name: actual
+    compose_path: "{{ homelab_base }}/services/actual"
+    manage_env: false
+    port: 9024
+    sablier: true
+    sablier_session_duration: 15m
+  - name: ryot
+    compose_path: "{{ homelab_base }}/services/ryot"
+    manage_env: true
+    port: 9025
+    sablier: true
+    sablier_session_duration: 20m
+  - name: pipe-bomb
+    compose_path: "{{ homelab_base }}/services/pipe-bomb"
+    manage_env: false
+    port: 9026
+    sablier: true
+    sablier_session_duration: 20m
+  # FreedomBox deliberately excluded: no viable Docker deployment exists (the
+  # official containerization project was archived 2019 — /etc/resolv.conf
+  # locking, requires a reboot mid-install, LDAP breaks). FreedomBox is
+  # designed to be the OS, not run inside one — same class of problem as
+  # 1Panel above. Needs a dedicated VM/hardware if wanted later.
+  # localsend deliberately excluded: it's a peer-to-peer LAN file-transfer
+  # client (AirDrop-style) that runs on your own devices, not a headless
+  # server — there's nothing here to deploy. (A self-hosted signaling
+  # server or the static web frontend exist if that specific thing is
+  # ever wanted, but that's not what the bookmark meant.)
 
 bridge_manager_bridges:
   - name: sh-telegram
