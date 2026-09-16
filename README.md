@@ -29,6 +29,52 @@ If you are not on Arch, the playbook will not work without modifying these roles
 - Compose deploy root: `/srv/pm_homelab` (where Ansible copies compose files)
 - Service data root: `/srv/homelab` (where most services store persistent data)
 
+### On-demand services (Sablier)
+
+This box has 7.7GB RAM and no swap. Most of the ~20 self-hosted tools in
+`services/` are things used in bursts, not continuously — a PDF tool, a
+BI dashboard, a backup runner, a budgeting app — so holding them in
+memory 24/7 would waste most of that budget on idle processes. Instead
+they run through [Sablier](https://github.com/sablierapp/sablier)
+(`services/sablier/`), which starts a container on first request and
+stops it again after an idle timeout, like a desktop app rather than a
+server.
+
+How it fits together:
+
+- **Caddy** (per-vhost, via the `sablier` directive in
+  `ansible/roles/caddy/templates/Caddyfile.j2`) intercepts requests to a
+  gated service. If the container isn't running, it shows a
+  self-refreshing "waiting" page (the `dynamic` strategy) while Sablier
+  starts it, then reloads into the real app once it's ready.
+- **Sablier** itself talks to the Docker socket to start/stop
+  containers, grouped by a `sablier.group=<name>` label on the
+  container (set in each service's `docker-compose.yml`) and gated by
+  `sablier.enable=true`.
+- **Each service is registered** in `ansible/group_vars/all.yml` with
+  `sablier: true` and a `sablier_session_duration` — how long it stays
+  up after the last request before Sablier shuts it down again (10–30
+  minutes depending on the service; a quick PDF conversion doesn't need
+  the same runway as a CI build).
+- **Glance's Lab page** shows every gated service's live running/idle
+  status via the `docker-containers` widget (reads the same
+  `glance.category=on-demand` label), so "is X actually up right now"
+  is a glance away without needing Sablier's own waiting page as a
+  status board — it isn't one, it only ever shows one service's loading
+  state at a time.
+
+Important nuance learned the hard way: **Sablier has no dashboard or
+status-overview page.** Don't mistake the per-service loading screen
+for one, or assume it can substitute for an actual dashboard tool —
+it can't.
+
+A handful of services stay **always-on** instead (Immich, Navidrome,
+Karakeep, Glance, AdGuard, SearXNG, Sparky Fitness, GramVault Atlas,
+Gotify, Syncthing, cloudflared, Prometheus, Healthchecks.io,
+dayGLANCE) — things that need to be listening continuously (DNS,
+reverse proxy, push notifications, continuous file sync) rather than
+started on demand.
+
 ## Remote Access
 
 All services are accessible via `https://<service>.lab` from any Tailscale-connected device.
@@ -83,6 +129,43 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | SearXNG         | 8888          | stateless (config in repo)           | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
 | GramVault Atlas | 8777          | `/srv/homelab/gramvault-atlas` (db/chroma/media) | yes |
+
+## On-Demand Services
+
+Sablier-gated — see [On-demand services (Sablier)](#on-demand-services-sablier)
+above for how this works. Idle timeout is how long each stays up after
+the last request before Sablier stops it again.
+
+| Service      | Port | Purpose                                   | Idle timeout |
+|--------------|------|--------------------------------------------|--------------|
+| Mealie       | 9001 | Recipe manager                             | 30m |
+| dawarich     | 9002 | Location history / life-logging            | 15m |
+| DroppedNeedle| 9003 | Music acquisition (replaces Lidarr)        | 30m |
+| homelable    | 9006 | Network topology visualizer                | 15m |
+| Activepieces | 9009 | Workflow automation                        | 20m |
+| Semaphore UI | 9010 | Ansible UI / automation runner             | 20m |
+| Woodpecker CI| 9011 | CI/CD                                      | 20m |
+| Scrutiny     | 9014 | Disk S.M.A.R.T. health monitoring          | 10m |
+| Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |
+| Stirling-PDF | 9016 | PDF toolkit                                | 15m |
+| Atheos       | 9017 | Cloud IDE                                  | 30m |
+| Gramps Web   | 9019 | Genealogy software                         | 20m |
+| LimeSurvey   | 9020 | Survey tool                                | 20m |
+| Plakar       | 9021 | Backup (targets: Immich library, Karakeep, the retired Nextcloud data archive) | 10m |
+| Grafana      | 9022 | BI/analytics, pairs with Prometheus        | 15m |
+| Splitpro     | 9023 | Expense splitting                          | 15m |
+| Actual       | 9024 | Budgeting (envelope-style, bank sync)      | 15m |
+| Ryot         | 9025 | Media/life tracker (movies/TV/books/games) | 20m |
+| Pipe Bomb    | 9026 | Plugin-based music streaming aggregator    | 20m |
+
+1Panel (`onepanel`) is deliberately excluded from Ansible deploy — no
+official docker-compose path exists, only a host-level installer that
+wants to manage the whole machine. Port 9005 is reserved but unused.
+FreedomBox and localsend were considered but dropped: FreedomBox has no
+viable Docker path (its containerization project was archived in 2019),
+and localsend is a peer-to-peer LAN client for your own devices, not a
+headless service — see `ansible/group_vars/all.yml` for the full
+reasoning as inline comments.
 
 ### GramVault Atlas
 
