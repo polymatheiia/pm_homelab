@@ -8,7 +8,7 @@ services:
       - "9008:8083"
     volumes:
       - config:/config
-      - /srv/pm_files/Books/Calibre Library:/books:ro
+      - /srv/pm_files/Books/Calibre Library:/books
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:8083/"]
       interval: 10s
