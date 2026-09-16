@@ -129,7 +129,6 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.
 |-----------------|--------------------|
 | Immich          | no                 |
 | Karakeep        | no                 |
-| Nextcloud       | yes — copy `services/nextcloud/.env.example` → `services/nextcloud/.env` |
 | Sparky Fitness  | no                 |
 | GramVault Atlas | yes — copy `services/gramvault-atlas/.env.example` → `.env` (just host uid/gid) |
 

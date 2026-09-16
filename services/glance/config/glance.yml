@@ -166,50 +166,25 @@ pages:
           # on the internal Docker network, never exposed to host.
           - type: custom-api
             title: Today
-            title-url: https://nextcloud.lab/apps/calendar
             cache: 15m
-            # Primary request: Personal calendar
+            # Primary request: personal calendar (Proton share-link ICS).
+            # Direct ICS feeds now — Nextcloud is retired, no longer used
+            # as a CalDAV aggregator here. Each feed's URL embeds its own
+            # access key, so no separate username/password is needed.
             url: http://ical-events:8076/events
             parameters:
-              url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/personal/?export
-              username: ${NEXTCLOUD_USER}
-              password: ${NEXTCLOUD_PASSWORD}
+              url: ${PROTON_CALENDAR_ICS_URL}
               horizon_days: "1"
             subrequests:
-              essential:
-                url: http://ical-events:8076/events
-                parameters:
-                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/calendargooglecom/?export
-                  username: ${NEXTCLOUD_USER}
-                  password: ${NEXTCLOUD_PASSWORD}
-                  horizon_days: "1"
-              moodle:
-                url: http://ical-events:8076/events
-                parameters:
-                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/moodlemimuwedupl/?export
-                  username: ${NEXTCLOUD_USER}
-                  password: ${NEXTCLOUD_PASSWORD}
-                  horizon_days: "1"
               usos:
                 url: http://ical-events:8076/events
                 parameters:
-                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/usosappsuwedupl/?export
-                  username: ${NEXTCLOUD_USER}
-                  password: ${NEXTCLOUD_PASSWORD}
+                  url: ${USOS_ICAL_URL}
                   horizon_days: "1"
               mim:
                 url: http://ical-events:8076/events
                 parameters:
-                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/calendargooglecom-1/?export
-                  username: ${NEXTCLOUD_USER}
-                  password: ${NEXTCLOUD_PASSWORD}
-                  horizon_days: "1"
-              facebook:
-                url: http://ical-events:8076/events
-                parameters:
-                  url: http://100.117.222.10:8000/remote.php/dav/calendars/${NEXTCLOUD_USER}/wwwfacebookcom/?export
-                  username: ${NEXTCLOUD_USER}
-                  password: ${NEXTCLOUD_PASSWORD}
+                  url: ${MIM_CALENDAR_ICS_URL}
                   horizon_days: "1"
             template: |
               {{/* Each sidecar response is {"events": [...]} already sorted (ongoing
@@ -230,33 +205,21 @@ pages:
               {{ end }}
 
               {{ $personal  := .JSON.Array "events" }}
-              {{ $essential := (.Subrequest "essential").JSON.Array "events" }}
-              {{ $moodle    := (.Subrequest "moodle").JSON.Array "events" }}
               {{ $usos      := (.Subrequest "usos").JSON.Array "events" }}
               {{ $mim       := (.Subrequest "mim").JSON.Array "events" }}
-              {{ $facebook  := (.Subrequest "facebook").JSON.Array "events" }}
 
-              {{ if not (or $personal $essential $moodle $usos $mim $facebook) }}
+              {{ if not (or $personal $usos $mim) }}
                 <p class="color-subdue">No events today.</p>
               {{ else }}
                 <ul class="list-gap-3">
                   {{ range $personal }}
                     <li>{{ template "calRow" . }}<p class="color-subdue size-small">Personal{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
                   {{ end }}
-                  {{ range $essential }}
-                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">Essential{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
-                  {{ end }}
-                  {{ range $moodle }}
-                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">Moodle{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
-                  {{ end }}
                   {{ range $usos }}
                     <li>{{ template "calRow" . }}<p class="color-subdue size-small">USOS{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
                   {{ end }}
                   {{ range $mim }}
                     <li>{{ template "calRow" . }}<p class="color-subdue size-small">MIM{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
-                  {{ end }}
-                  {{ range $facebook }}
-                    <li>{{ template "calRow" . }}<p class="color-subdue size-small">Facebook{{ if .String "location" }} · 📍 {{ .String "location" }}{{ end }}</p></li>
                   {{ end }}
                 </ul>
               {{ end }}
