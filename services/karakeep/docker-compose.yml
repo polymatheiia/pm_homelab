@@ -11,6 +11,9 @@ services:
       - meilisearch:/meili_data
     networks:
       - karakeep-internal
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=karakeep"
 
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:124
@@ -25,15 +28,20 @@ services:
       - --hide-scrollbars
     networks:
       - karakeep-internal
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=karakeep"
 
   web:
     image: ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION:-release}
     container_name: karakeep_web
     restart: unless-stopped
     labels:
+      - "sablier.enable=true"
+      - "sablier.group=karakeep"
       - "glance.name=Karakeep"
       - "glance.url=https://karakeep.lab"
-      - "glance.category=core"
+      - "glance.category=on-demand"
     ports:
       - "3000:3000"
     env_file:

@@ -23,10 +23,6 @@ services:
     manage_env: false
     port: 8080
     security_headers: false
-  - name: karakeep
-    compose_path: "{{ homelab_base }}/services/karakeep"
-    manage_env: true
-    port: 3000
   - name: adguard
     compose_path: "{{ homelab_base }}/services/adguard"
     manage_env: false
@@ -213,6 +209,12 @@ services:
     compose_path: "{{ homelab_base }}/services/gramvault-atlas"
     manage_env: true
     port: 8777
+    sablier: true
+    sablier_session_duration: 20m
+  - name: karakeep
+    compose_path: "{{ homelab_base }}/services/karakeep"
+    manage_env: true
+    port: 3000
     sablier: true
     sablier_session_duration: 20m
   # FreedomBox deliberately excluded: no viable Docker deployment exists (the

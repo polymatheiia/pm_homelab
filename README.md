@@ -76,7 +76,7 @@ nothing is removed, so the next request to any of them still wakes it
 normally.
 
 A handful of services stay **always-on** instead (Immich, Navidrome,
-Karakeep, Glance, AdGuard, SearXNG, Sparky Fitness, Gotify, Syncthing,
+Glance, AdGuard, SearXNG, Sparky Fitness, Gotify, Syncthing,
 cloudflared, Prometheus, Healthchecks.io, dayGLANCE) — things that need
 to be listening continuously (DNS, reverse proxy, push notifications,
 continuous file sync) rather than started on demand.
@@ -129,7 +129,6 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 |-----------------|---------------|--------------------------------------|-----------------|
 | Immich          | 2283          | via `.env` (`UPLOAD_LOCATION`, `DB_DATA_LOCATION`) | yes |
 | Navidrome       | 4533          | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
-| Karakeep        | 3000          | Docker volumes                       | yes |
 | Glance          | 8080          | config files in repo                 | yes |
 | AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
 | SearXNG         | 8888          | stateless (config in repo)           | yes |
@@ -164,6 +163,7 @@ the last request before Sablier stops it again.
 | Ryot         | 9025 | Media/life tracker (movies/TV/books/games) | 20m |
 | Pipe Bomb    | 9026 | Plugin-based music streaming aggregator    | 20m |
 | GramVault Atlas | 8777 | Saved Instagram pipeline (pull/import → enrich → categorize → digest → Obsidian), RAG chat + reels-style feed, bundled Ollama | 20m |
+| Karakeep     | 3000 | Bookmark/read-later manager with full-text search + screenshotting | 20m |
 
 1Panel (`onepanel`) is deliberately excluded from Ansible deploy — no
 official docker-compose path exists, only a host-level installer that

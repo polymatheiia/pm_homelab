@@ -23,6 +23,9 @@ services:
       - .env
     environment:
       DB: postgres
+      # Default uwsgi.ini processes=4 is overkill for this host's ping
+      # volume; 2 workers is plenty and halves the idle memory footprint.
+      UWSGI_PROCESSES: "2"
     labels:
       - "glance.name=Healthchecks"
       - "glance.url=https://healthchecks.lab"

@@ -4,6 +4,12 @@ services:
     container_name: syncthing
     restart: unless-stopped
     hostname: syncthing
+    environment:
+      # More aggressive GC trades some CPU for materially lower resident
+      # memory on a Go process that otherwise grows with the index size
+      # of pm_vault + pm_files. Default (100) favors throughput; we have
+      # RAM pressure, not CPU pressure, on this box.
+      GOGC: "30"
     labels:
       - "glance.name=Syncthing"
       - "glance.icon=si:syncthing"
