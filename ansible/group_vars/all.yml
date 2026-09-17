@@ -45,10 +45,6 @@ services:
     # not homelab_user. Never let the sync task chown it.
     sync_excludes:
       - postgresql
-  - name: gramvault-atlas
-    compose_path: "{{ homelab_base }}/services/gramvault-atlas"
-    manage_env: true
-    port: 8777
 
   # --- Sablier infra (no public vhost, called internally by Caddy) ---
   - name: sablier
@@ -213,6 +209,12 @@ services:
     port: 9008
     sablier: true
     sablier_session_duration: 15m
+  - name: gramvault-atlas
+    compose_path: "{{ homelab_base }}/services/gramvault-atlas"
+    manage_env: true
+    port: 8777
+    sablier: true
+    sablier_session_duration: 20m
   # FreedomBox deliberately excluded: no viable Docker deployment exists (the
   # official containerization project was archived 2019 — /etc/resolv.conf
   # locking, requires a reboot mid-install, LDAP breaks). FreedomBox is

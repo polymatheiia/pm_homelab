@@ -68,12 +68,18 @@ status-overview page.** Don't mistake the per-service loading screen
 for one, or assume it can substitute for an actual dashboard tool —
 it can't.
 
+**Kill switch:** `scripts/kill-on-demand.sh` stops every currently-running
+on-demand container immediately (same `docker stop` Sablier would do on
+timeout, just all at once, on demand — pass `--dry-run` to preview).
+Always-on services and the Sablier/Caddy infra itself are untouched, and
+nothing is removed, so the next request to any of them still wakes it
+normally.
+
 A handful of services stay **always-on** instead (Immich, Navidrome,
-Karakeep, Glance, AdGuard, SearXNG, Sparky Fitness, GramVault Atlas,
-Gotify, Syncthing, cloudflared, Prometheus, Healthchecks.io,
-dayGLANCE) — things that need to be listening continuously (DNS,
-reverse proxy, push notifications, continuous file sync) rather than
-started on demand.
+Karakeep, Glance, AdGuard, SearXNG, Sparky Fitness, Gotify, Syncthing,
+cloudflared, Prometheus, Healthchecks.io, dayGLANCE) — things that need
+to be listening continuously (DNS, reverse proxy, push notifications,
+continuous file sync) rather than started on demand.
 
 ## Remote Access
 
@@ -128,7 +134,6 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
 | SearXNG         | 8888          | stateless (config in repo)           | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
-| GramVault Atlas | 8777          | `/srv/homelab/gramvault-atlas` (db/chroma/media) | yes |
 
 ## On-Demand Services
 
@@ -158,6 +163,7 @@ the last request before Sablier stops it again.
 | Actual       | 9024 | Budgeting (envelope-style, bank sync)      | 15m |
 | Ryot         | 9025 | Media/life tracker (movies/TV/books/games) | 20m |
 | Pipe Bomb    | 9026 | Plugin-based music streaming aggregator    | 20m |
+| GramVault Atlas | 8777 | Saved Instagram pipeline (pull/import → enrich → categorize → digest → Obsidian), RAG chat + reels-style feed, bundled Ollama | 20m |
 
 1Panel (`onepanel`) is deliberately excluded from Ansible deploy — no
 official docker-compose path exists, only a host-level installer that

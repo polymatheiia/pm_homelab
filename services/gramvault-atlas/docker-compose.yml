@@ -27,6 +27,9 @@ services:
       - ollama-models:/root/.ollama
     networks:
       - gramvault
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=gramvault-atlas"
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 30s
@@ -56,9 +59,11 @@ services:
       ollama:
         condition: service_started
     labels:
+      - "sablier.enable=true"
+      - "sablier.group=gramvault-atlas"
       - "glance.name=GramVault Atlas"
       - "glance.url=https://gramvault-atlas.lab"
-      - "glance.category=core"
+      - "glance.category=on-demand"
     ports:
       - "127.0.0.1:8777:8000"
     environment:
