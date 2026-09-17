@@ -19,12 +19,29 @@
     dest: "{{ homelab_base }}/bridge-manager/src"
     version: main
     update: true
+    force: true
+  register: bridge_manager_checkout
+
+- name: Apply local bbctl patches
+  patch:
+    src: "{{ item }}"
+    basedir: "{{ homelab_base }}/bridge-manager/src"
+    strip: 1
+  loop:
+    - type-flag-always-wins.patch
+  register: bridge_manager_patched
+
+- name: Check whether bbctl binary already exists
+  stat:
+    path: "{{ homelab_base }}/bridge-manager/src/bbctl"
+  register: bridge_manager_binary
 
 - name: Build bbctl
   command: ./build.sh
   args:
     chdir: "{{ homelab_base }}/bridge-manager/src"
-    creates: "{{ homelab_base }}/bridge-manager/src/bbctl"
+  when: bridge_manager_checkout.changed or bridge_manager_patched.changed
+    or not bridge_manager_binary.stat.exists
 
 - name: Install bbctl to user bin
   copy:

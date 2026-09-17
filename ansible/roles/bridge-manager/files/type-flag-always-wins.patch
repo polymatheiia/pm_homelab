@@ -1,0 +1,16 @@
+diff --git a/cmd/bbctl/config.go b/cmd/bbctl/config.go
+index 0620b26..1e9d693 100644
+--- a/cmd/bbctl/config.go
++++ b/cmd/bbctl/config.go
+@@ -233,7 +233,10 @@ func doGenerateBridgeConfig(ctx *cli.Context, bridge string) (*generatedBridgeCo
+ 	}
+ 	existingBridge, ok := whoami.User.Bridges[bridge]
+ 	var bridgeType string
+-	if ok && existingBridge.BridgeState.BridgeType != "" {
++	if ctx.IsSet("type") {
++		// explicit --type always wins over whatever the server has stored
++		bridgeType = ctx.String("type")
++	} else if ok && existingBridge.BridgeState.BridgeType != "" {
+ 		bridgeType = existingBridge.BridgeState.BridgeType
+ 	} else {
+ 		bridgeType, err = guessOrAskBridgeType(bridge, ctx.String("type"))
