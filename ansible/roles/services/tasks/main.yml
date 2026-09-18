@@ -26,6 +26,13 @@
   # the same path on disk, so without an exclude, --chown reassigns them from
   # the DB engine's uid to homelab_user on every run, corrupting Postgres's
   # data-dir ownership (see homelab_ansible_freeze_2026_09_15 postmortem).
+  # become: no here deliberately overrides the play-level become: with a
+  # remote (SSH) connection, synchronize otherwise re-execs rsync on the
+  # target as root via a second, nested SSH+sudo hop that has no TTY and
+  # can't use the play's become password, so it just fails outright. Since
+  # homelab_user is the same account this connects as, running unprivileged
+  # is sufficient and --chown is then a same-owner no-op.
+  become: no
   synchronize:
     src: "{{ playbook_dir }}/../services/{{ item.name }}/"
     dest: "{{ item.compose_path }}/"
