@@ -93,12 +93,6 @@ services:
   # docker-compose path exists (only a host-level installer script that wants
   # to manage the whole machine). See services/onepanel/README.md. Port 9005
   # reserved but unused until an operator decision is made.
-  - name: homelable
-    compose_path: "{{ homelab_base }}/services/homelable"
-    manage_env: true
-    port: 9006
-    sablier: true
-    sablier_session_duration: 15m
   - name: activepieces
     compose_path: "{{ homelab_base }}/services/activepieces"
     manage_env: true
