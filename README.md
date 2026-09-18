@@ -77,7 +77,7 @@ normally.
 
 A handful of services stay **always-on** instead (Immich, Navidrome,
 Glance, AdGuard, Sparky Fitness, Syncthing,
-cloudflared, Prometheus, Healthchecks.io, dayGLANCE) — things that need
+cloudflared, Prometheus, Healthchecks.io, dayGLANCE, Semaphore) — things that need
 to be listening continuously (DNS, reverse proxy,
 continuous file sync) rather than started on demand.
 
@@ -147,7 +147,6 @@ the last request before Sablier stops it again.
 | Calibre-Web  | 9008 | Ebook library browser/reader (OPDS), reads /srv/pm_files/Books/Calibre Library read-only | 15m |
 | homelable    | 9006 | Network topology visualizer                | 15m |
 | Activepieces | 9009 | Workflow automation                        | 20m |
-| Semaphore UI | 9010 | Ansible UI / automation runner             | 20m |
 | Woodpecker CI| 9011 | CI/CD                                      | 20m |
 | Scrutiny     | 9014 | Disk S.M.A.R.T. health monitoring          | 10m |
 | Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |

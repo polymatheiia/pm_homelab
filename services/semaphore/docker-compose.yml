@@ -24,11 +24,9 @@ services:
       start_period: 30s
       timeout: 10s
     labels:
-      - "sablier.enable=true"
-      - "sablier.group=semaphore"
       - "glance.name=Semaphore"
       - "glance.url=https://semaphore.lab"
-      - "glance.category=on-demand"
+      - "glance.category=core"
 
 volumes:
   data: {}

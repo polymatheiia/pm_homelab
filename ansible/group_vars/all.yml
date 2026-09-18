@@ -71,6 +71,10 @@ services:
     compose_path: "{{ homelab_base }}/services/dayglance"
     manage_env: false
     port: 9018
+  - name: semaphore
+    compose_path: "{{ homelab_base }}/services/semaphore"
+    manage_env: true
+    port: 9010
 
   # --- On-demand (Sablier-gated) new services ---
   - name: mealie
@@ -105,12 +109,6 @@ services:
     compose_path: "{{ homelab_base }}/services/activepieces"
     manage_env: true
     port: 9009
-    sablier: true
-    sablier_session_duration: 20m
-  - name: semaphore
-    compose_path: "{{ homelab_base }}/services/semaphore"
-    manage_env: true
-    port: 9010
     sablier: true
     sablier_session_duration: 20m
   - name: woodpecker
