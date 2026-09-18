@@ -13,6 +13,9 @@ __pycache__/
 **/.env
 .env
 
+# Personal notes containing real generated secrets
+/SETUP_CHECKLIST.md
+
 # OS junk
 .DS_Store
 Thumbs.db
