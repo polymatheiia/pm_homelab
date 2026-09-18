@@ -42,9 +42,9 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: Check that .env exists for services that require it (on controller)
+- name: Check that .env exists for services that require it (on target)
   stat:
-    path: "{{ playbook_dir }}/../services/{{ item.name }}/.env"
+    path: "{{ item.compose_path }}/.env"
   register: env_stat
   when: item.manage_env | bool
   loop: "{{ services }}"
@@ -54,9 +54,9 @@
 - name: Fail if required .env is missing (create it from .env.example)
   fail:
     msg: >
-      Missing services/{{ item.item.name }}/.env on controller.
+      Missing services/{{ item.item.name }}/.env.
       Create it (for example by copying services/{{ item.item.name }}/.env.example to .env)
-      before running Ansible.
+      at {{ item.item.compose_path }}/.env before running Ansible.
   when:
     - item.item.manage_env | bool
     - not item.stat.exists
@@ -64,17 +64,35 @@
   loop_control:
     label: "{{ item.item.name }}"
 
-- name: Copy .env file if service manages env
-  copy:
-    src: "{{ playbook_dir }}/../services/{{ item.name }}/.env"
-    dest: "{{ item.compose_path }}/.env"
-    owner: "{{ homelab_user }}"
-    group: "{{ homelab_user }}"
-    mode: "0600"
+- name: Check that .env exists on the controller
+  stat:
+    path: "{{ playbook_dir }}/../services/{{ item.name }}/.env"
+  delegate_to: localhost
+  become: no
+  register: controller_env_stat
   when: item.manage_env | bool
   loop: "{{ services }}"
   loop_control:
     label: "{{ item.name }}"
+
+# Only relevant when running from a machine that has its own copy of the
+# secrets (e.g. the local/manual workflow, where controller and target are
+# the same host). Runners with an ephemeral checkout (no committed .env,
+# e.g. Semaphore) won't have a controller-side copy to push — that's fine,
+# since the check above already confirms the target has its own.
+- name: Copy .env file from controller if present
+  copy:
+    src: "{{ playbook_dir }}/../services/{{ item.item.name }}/.env"
+    dest: "{{ item.item.compose_path }}/.env"
+    owner: "{{ homelab_user }}"
+    group: "{{ homelab_user }}"
+    mode: "0600"
+  when:
+    - item.item.manage_env | bool
+    - item.stat.exists
+  loop: "{{ controller_env_stat.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.name }}"
 
 - name: Remove stopped containers with dead network references
   shell: |
