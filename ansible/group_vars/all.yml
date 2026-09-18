@@ -195,6 +195,18 @@ services:
     port: 9026
     sablier: true
     sablier_session_duration: 20m
+  - name: lifeglance
+    compose_path: "{{ homelab_base }}/services/lifeglance"
+    manage_env: false
+    port: 9027
+    sablier: true
+    sablier_session_duration: 20m
+  - name: lastglance
+    compose_path: "{{ homelab_base }}/services/lastglance"
+    manage_env: false
+    port: 9028
+    sablier: true
+    sablier_session_duration: 20m
   - name: calibre-web
     compose_path: "{{ homelab_base }}/services/calibre-web"
     manage_env: true

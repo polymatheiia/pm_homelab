@@ -161,6 +161,8 @@ the last request before Sablier stops it again.
 | Actual       | 9024 | Budgeting (envelope-style, bank sync)      | 15m |
 | Ryot         | 9025 | Media/life tracker (movies/TV/books/games) | 20m |
 | Pipe Bomb    | 9026 | Plugin-based music streaming aggregator    | 20m |
+| lifeGLANCE   | 9027 | Zoomable personal timeline (GLANCE family) | 20m |
+| lastGLANCE   | 9028 | Recency tracker for chores/upkeep (GLANCE family) | 20m |
 | GramVault Atlas | 8777 | Saved Instagram pipeline (pull/import → enrich → categorize → digest → Obsidian), RAG chat + reels-style feed, bundled Ollama | 20m |
 | Karakeep     | 3000 | Bookmark/read-later manager with full-text search + screenshotting | 20m |
 

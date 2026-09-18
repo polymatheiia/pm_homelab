@@ -1,0 +1,14 @@
+# lifeGLANCE: https://github.com/krelltunez/lifeGLANCE
+# Official pre-built image, confirmed present on GHCR (linux/amd64 + linux/arm64):
+# https://github.com/krelltunez/lifeGLANCE/pkgs/container/lifeglance
+services:
+  lifeglance:
+    image: ghcr.io/krelltunez/lifeglance:latest
+    container_name: lifeglance
+    restart: unless-stopped
+    labels:
+      - "glance.name=lifeGLANCE"
+      - "glance.url=https://lifeglance.lab"
+      - "glance.category=on-demand"
+    ports:
+      - "9027:80"
