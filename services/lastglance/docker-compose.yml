@@ -1,0 +1,14 @@
+# lastGLANCE: https://github.com/krelltunez/lastGLANCE
+# Official pre-built image, confirmed present on GHCR (linux/amd64 + linux/arm64):
+# https://github.com/krelltunez/lastGLANCE/pkgs/container/lastglance
+services:
+  lastglance:
+    image: ghcr.io/krelltunez/lastglance:latest
+    container_name: lastglance
+    restart: unless-stopped
+    labels:
+      - "glance.name=lastGLANCE"
+      - "glance.url=https://lastglance.lab"
+      - "glance.category=on-demand"
+    ports:
+      - "9028:80"
