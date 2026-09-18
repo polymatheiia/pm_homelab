@@ -46,10 +46,6 @@ services:
     no_vhost: true
 
   # --- Always-on new services ---
-  - name: gotify
-    compose_path: "{{ homelab_base }}/services/gotify"
-    manage_env: true
-    port: 9004
   - name: syncthing
     compose_path: "{{ homelab_base }}/services/syncthing"
     manage_env: false
@@ -151,12 +147,6 @@ services:
     compose_path: "{{ homelab_base }}/services/grampsweb"
     manage_env: true
     port: 9019
-    sablier: true
-    sablier_session_duration: 20m
-  - name: limesurvey
-    compose_path: "{{ homelab_base }}/services/limesurvey"
-    manage_env: true
-    port: 9020
     sablier: true
     sablier_session_duration: 20m
   - name: plakar
