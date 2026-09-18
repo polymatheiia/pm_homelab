@@ -3,15 +3,7 @@
     order sablier before reverse_proxy
 }
 
-{% for service in services %}
-{% if not (service.no_vhost is defined and service.no_vhost) %}
-{{ service.name }}.lab {
-{% if tailscale_ip %}
-    bind {{ tailscale_ip }}
-{% endif %}
-
-    tls internal
-
+{% macro site_body(service) %}
     encode gzip zstd
 
 {% if service.backend_port is defined %}
@@ -66,6 +58,30 @@
         Referrer-Policy "no-referrer"
 {% endif %}
     }
+{% endmacro %}
+
+{% for service in services %}
+{% if not (service.no_vhost is defined and service.no_vhost) %}
+{{ service.name }}.lab {
+{% if tailscale_ip %}
+    bind {{ tailscale_ip }}
+{% endif %}
+
+    tls internal
+{{ site_body(service) }}
 }
+{% if service.public_domain is defined %}
+
+{{ service.public_domain }} {
+{% if tailscale_ip %}
+    bind {{ tailscale_ip }}
+{% endif %}
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+{{ site_body(service) }}
+}
+{% endif %}
 {% endif %}
 {% endfor %}

@@ -8,10 +8,16 @@
     path: /usr/local/bin/caddy-sablier
   register: caddy_sablier_bin
 
-- name: Build custom Caddy with Sablier plugin (via caddy:builder image)
+- name: Build custom Caddy with Sablier + Cloudflare DNS plugins (via caddy:builder image)
+  # Cloudflare DNS plugin enables DNS-01 ACME challenges, so Caddy can get
+  # real Let's Encrypt certs for public domains (e.g. tunneled through
+  # Cloudflare Tunnel) without needing port 80/443 reachable from the
+  # internet directly.
   command: >
     docker run --rm -v {{ homelab_base }}/build:/out caddy:builder
-    xcaddy build --with github.com/sablierapp/sablier-caddy-plugin@latest
+    xcaddy build
+    --with github.com/sablierapp/sablier-caddy-plugin@latest
+    --with github.com/caddy-dns/cloudflare@latest
     --output /out/caddy-sablier
   args:
     creates: "{{ homelab_base }}/build/caddy-sablier"
@@ -26,10 +32,21 @@
     mode: '0755'
   notify: Restart Caddy
 
+- name: Deploy Cloudflare API token env file (DNS-01 ACME for public domains)
+  copy:
+    content: "CLOUDFLARE_API_TOKEN={{ cloudflare_api_token }}\n"
+    dest: /etc/caddy/cloudflare_token.env
+    owner: root
+    group: root
+    mode: '0600'
+  when: cloudflare_api_token is defined
+  notify: Restart Caddy
+
 - name: Deploy Caddy systemd override to use the custom Sablier-enabled binary
   copy:
     content: |
       [Service]
+      EnvironmentFile=-/etc/caddy/cloudflare_token.env
       ExecStartPre=
       ExecStartPre=/usr/local/bin/caddy-sablier validate --config /etc/caddy/Caddyfile
       ExecStart=

@@ -12,6 +12,7 @@ __pycache__/
 # Environment files
 **/.env
 .env
+ansible/group_vars/all/secrets.yml
 
 # Personal notes containing real generated secrets
 /SETUP_CHECKLIST.md

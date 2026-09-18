@@ -135,6 +135,9 @@ services:
     port: 9023
     sablier: true
     sablier_session_duration: 15m
+    # Exposed to friends via Cloudflare Tunnel; real Let's Encrypt cert via
+    # DNS-01 (cloudflare_api_token in group_vars/all/secrets.yml).
+    public_domain: splitpro.grabovska.com
   - name: actual
     compose_path: "{{ homelab_base }}/services/actual"
     manage_env: false
