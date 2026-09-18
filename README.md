@@ -146,7 +146,6 @@ the last request before Sablier stops it again.
 | Calibre-Web  | 9008 | Ebook library browser/reader (OPDS), reads /srv/pm_files/Books/Calibre Library read-only | 15m |
 | Activepieces | 9009 | Workflow automation                        | 20m |
 | Woodpecker CI| 9011 | CI/CD                                      | 20m |
-| Scrutiny     | 9014 | Disk S.M.A.R.T. health monitoring          | 10m |
 | Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |
 | Stirling-PDF | 9016 | PDF toolkit                                | 15m |
 | Gramps Web   | 9019 | Genealogy software                         | 20m |
@@ -155,7 +154,6 @@ the last request before Sablier stops it again.
 | Splitpro     | 9023 | Expense splitting                          | 15m |
 | Actual       | 9024 | Budgeting (envelope-style, bank sync)      | 15m |
 | Ryot         | 9025 | Media/life tracker (movies/TV/books/games) | 20m |
-| Pipe Bomb    | 9026 | Plugin-based music streaming aggregator    | 20m |
 | lifeGLANCE   | 9027 | Zoomable personal timeline (GLANCE family) | 20m |
 | lastGLANCE   | 9028 | Recency tracker for chores/upkeep (GLANCE family) | 20m |
 | GramVault Atlas | 8777 | Saved Instagram pipeline (pull/import → enrich → categorize → digest → Obsidian), RAG chat + reels-style feed, bundled Ollama | 20m |

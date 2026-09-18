@@ -105,12 +105,6 @@ services:
     port: 9011
     sablier: true
     sablier_session_duration: 20m
-  - name: scrutiny
-    compose_path: "{{ homelab_base }}/services/scrutiny"
-    manage_env: false
-    port: 9014
-    sablier: true
-    sablier_session_duration: 10m
   - name: glances
     compose_path: "{{ homelab_base }}/services/glances"
     manage_env: false
@@ -157,12 +151,6 @@ services:
     compose_path: "{{ homelab_base }}/services/ryot"
     manage_env: true
     port: 9025
-    sablier: true
-    sablier_session_duration: 20m
-  - name: pipe-bomb
-    compose_path: "{{ homelab_base }}/services/pipe-bomb"
-    manage_env: false
-    port: 9026
     sablier: true
     sablier_session_duration: 20m
   - name: lifeglance
