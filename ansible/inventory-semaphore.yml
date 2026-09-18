@@ -1,0 +1,6 @@
+all:
+  hosts:
+    homelab:
+      ansible_host: 100.117.222.10
+      ansible_user: nymph
+      ansible_connection: ssh

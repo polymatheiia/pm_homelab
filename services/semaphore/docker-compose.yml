@@ -9,6 +9,14 @@ services:
     volumes:
       - data:/etc/semaphore
       - config:/var/lib/semaphore
+      - /srv/pm_homelab:/srv/pm_homelab:ro
+      # /srv/pm_homelab is owned by the host UID, not the container's
+      # semaphore user, so git refuses it as "dubious ownership" unless
+      # told it's safe. Semaphore runs git in a per-task subprocess with
+      # its own $HOME, so a global/env-var config doesn't reach it — only
+      # git's fixed system-wide config path (/etc/gitconfig) is honored
+      # regardless of task/HOME, so mount the exception there instead.
+      - ./gitconfig:/etc/gitconfig:ro
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:3000/api/ping"]
       interval: 10s
