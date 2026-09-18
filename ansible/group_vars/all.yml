@@ -83,12 +83,6 @@ services:
     port: 9001
     sablier: true
     sablier_session_duration: 30m
-  - name: dawarich
-    compose_path: "{{ homelab_base }}/services/dawarich"
-    manage_env: true
-    port: 9002
-    sablier: true
-    sablier_session_duration: 15m
   - name: droppedneedle
     compose_path: "{{ homelab_base }}/services/droppedneedle"
     manage_env: true
@@ -135,12 +129,6 @@ services:
     port: 9016
     sablier: true
     sablier_session_duration: 15m
-  - name: atheos
-    compose_path: "{{ homelab_base }}/services/atheos"
-    manage_env: false
-    port: 9017
-    sablier: true
-    sablier_session_duration: 30m
   - name: grampsweb
     compose_path: "{{ homelab_base }}/services/grampsweb"
     manage_env: true

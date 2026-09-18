@@ -142,7 +142,6 @@ the last request before Sablier stops it again.
 | Service      | Port | Purpose                                   | Idle timeout |
 |--------------|------|--------------------------------------------|--------------|
 | Mealie       | 9001 | Recipe manager                             | 30m |
-| dawarich     | 9002 | Location history / life-logging            | 15m |
 | DroppedNeedle| 9003 | Music acquisition (replaces Lidarr)        | 30m |
 | Calibre-Web  | 9008 | Ebook library browser/reader (OPDS), reads /srv/pm_files/Books/Calibre Library read-only | 15m |
 | homelable    | 9006 | Network topology visualizer                | 15m |
@@ -151,7 +150,6 @@ the last request before Sablier stops it again.
 | Scrutiny     | 9014 | Disk S.M.A.R.T. health monitoring          | 10m |
 | Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |
 | Stirling-PDF | 9016 | PDF toolkit                                | 15m |
-| Atheos       | 9017 | Cloud IDE                                  | 30m |
 | Gramps Web   | 9019 | Genealogy software                         | 20m |
 | Plakar       | 9021 | Backup (targets: Immich library, Karakeep, the retired Nextcloud data archive) | 10m |
 | Grafana      | 9022 | BI/analytics, pairs with Prometheus        | 15m |
