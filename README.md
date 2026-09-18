@@ -145,7 +145,6 @@ the last request before Sablier stops it again.
 | DroppedNeedle| 9003 | Music acquisition (replaces Lidarr)        | 30m |
 | Calibre-Web  | 9008 | Ebook library browser/reader (OPDS), reads /srv/pm_files/Books/Calibre Library read-only | 15m |
 | Activepieces | 9009 | Workflow automation                        | 20m |
-| Woodpecker CI| 9011 | CI/CD                                      | 20m |
 | Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |
 | Stirling-PDF | 9016 | PDF toolkit                                | 15m |
 | Gramps Web   | 9019 | Genealogy software                         | 20m |

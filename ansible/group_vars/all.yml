@@ -99,12 +99,6 @@ services:
     port: 9009
     sablier: true
     sablier_session_duration: 20m
-  - name: woodpecker
-    compose_path: "{{ homelab_base }}/services/woodpecker"
-    manage_env: true
-    port: 9011
-    sablier: true
-    sablier_session_duration: 20m
   - name: glances
     compose_path: "{{ homelab_base }}/services/glances"
     manage_env: false
