@@ -76,9 +76,9 @@ nothing is removed, so the next request to any of them still wakes it
 normally.
 
 A handful of services stay **always-on** instead (Immich, Navidrome,
-Glance, AdGuard, Sparky Fitness, Gotify, Syncthing,
+Glance, AdGuard, Sparky Fitness, Syncthing,
 cloudflared, Prometheus, Healthchecks.io, dayGLANCE) — things that need
-to be listening continuously (DNS, reverse proxy, push notifications,
+to be listening continuously (DNS, reverse proxy,
 continuous file sync) rather than started on demand.
 
 ## Remote Access
@@ -154,7 +154,6 @@ the last request before Sablier stops it again.
 | Stirling-PDF | 9016 | PDF toolkit                                | 15m |
 | Atheos       | 9017 | Cloud IDE                                  | 30m |
 | Gramps Web   | 9019 | Genealogy software                         | 20m |
-| LimeSurvey   | 9020 | Survey tool                                | 20m |
 | Plakar       | 9021 | Backup (targets: Immich library, Karakeep, the retired Nextcloud data archive) | 10m |
 | Grafana      | 9022 | BI/analytics, pairs with Prometheus        | 15m |
 | Splitpro     | 9023 | Expense splitting                          | 15m |
