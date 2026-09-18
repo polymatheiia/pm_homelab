@@ -28,10 +28,6 @@ services:
     manage_env: false
     port: 3080
     security_headers: false
-  - name: searxng
-    compose_path: "{{ homelab_base }}/services/searxng"
-    manage_env: false
-    port: 8888
   - name: sparky
     compose_path: "{{ homelab_base }}/services/sparky"
     manage_env: true

@@ -76,7 +76,7 @@ nothing is removed, so the next request to any of them still wakes it
 normally.
 
 A handful of services stay **always-on** instead (Immich, Navidrome,
-Glance, AdGuard, SearXNG, Sparky Fitness, Gotify, Syncthing,
+Glance, AdGuard, Sparky Fitness, Gotify, Syncthing,
 cloudflared, Prometheus, Healthchecks.io, dayGLANCE) — things that need
 to be listening continuously (DNS, reverse proxy, push notifications,
 continuous file sync) rather than started on demand.
@@ -131,7 +131,6 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Navidrome       | 4533          | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
 | Glance          | 8080          | config files in repo                 | yes |
 | AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
-| SearXNG         | 8888          | stateless (config in repo)           | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
 
 ## On-Demand Services
