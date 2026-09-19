@@ -1,0 +1,25 @@
+services:
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./secrets:/etc/alertmanager/secrets:ro
+      - data:/alertmanager
+    ports:
+      # Loopback (Caddy reaches it here) + tailscale IP (Prometheus, running
+      # in a container, reaches it here) — same dual-bind pattern as sablier.
+      - "127.0.0.1:9014:9093"
+      - "100.117.222.10:9014:9093"
+    labels:
+      - "glance.name=Alertmanager"
+      - "glance.icon=si:prometheus"
+      - "glance.url=https://alertmanager.lab"
+      - "glance.category=core"
+
+volumes:
+  data:

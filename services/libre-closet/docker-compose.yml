@@ -1,0 +1,22 @@
+# Libre Closet: https://github.com/lazztech/Libre-Closet
+services:
+  libre-closet:
+    image: ghcr.io/lazztech/libre-closet:latest
+    container_name: libre-closet
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      DATA_PATH: /app/data
+    ports:
+      - "9030:3000"
+    volumes:
+      - data:/app/data
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=libre-closet"
+      - "glance.name=Libre Closet"
+      - "glance.url=https://libre-closet.lab"
+      - "glance.category=on-demand"
+
+volumes:
+  data:

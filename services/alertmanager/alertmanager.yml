@@ -1,0 +1,31 @@
+global:
+  smtp_from: "noreply@grabovska.com"
+  # Same Proton Bridge relay used by splitpro/healthchecks (see their .env
+  # files); grabovska.com is a custom domain on that Proton account, so any
+  # @grabovska.com alias can be used as the From address.
+  smtp_smarthost: "100.117.222.10:1025"
+  smtp_auth_username: "polymatheiia@pm.me"
+  # Alertmanager has no env-var expansion in its config file, unlike the
+  # apps in this repo that read secrets straight from .env — so the SMTP
+  # password lives in a separate gitignored file instead (see secrets/).
+  smtp_auth_password_file: "/etc/alertmanager/secrets/smtp_password"
+  smtp_require_tls: true
+
+route:
+  receiver: email
+  group_by: ["alertname"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 3h
+
+receivers:
+  - name: email
+    email_configs:
+      - to: "polymatheiia@proton.me"
+        # Proton Bridge's cert is issued for 127.0.0.1, not the tailscale IP
+        # it's actually reached on here, so strict verification fails
+        # (Alertmanager checks hostnames strictly; the Node/Python SMTP
+        # clients splitpro/healthchecks use don't, which is why this didn't
+        # come up there). Same local-relay trust boundary either way.
+        tls_config:
+          insecure_skip_verify: true

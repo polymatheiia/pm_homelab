@@ -7,6 +7,8 @@ services:
     container_name: lifeglance
     restart: unless-stopped
     labels:
+      - "sablier.enable=true"
+      - "sablier.group=lifeglance"
       - "glance.name=lifeGLANCE"
       - "glance.url=https://lifeglance.lab"
       - "glance.category=on-demand"

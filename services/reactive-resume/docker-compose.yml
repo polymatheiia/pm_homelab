@@ -1,0 +1,117 @@
+# Reactive Resume: https://github.com/reactive-resume/reactive-resume
+# Official compose.yml adapted: pre-built image instead of build: (no source
+# checkout here), every container/network name prefixed to avoid colliding
+# with other stacks on this host, and postgres/seaweedfs unpublished from the
+# host (reached over the compose network only — Caddy never needs them).
+name: reactive-resume
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: reactive-resume-db
+    restart: unless-stopped
+    networks: [data_network]
+    env_file: [.env]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:latest
+    container_name: reactive-resume-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    networks: [data_network]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      start_period: 5s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: reactive-resume-seaweedfs
+    restart: unless-stopped
+    command: server -s3 -filer -dir=/data -ip=0.0.0.0
+    networks: [storage_network]
+    environment:
+      AWS_ACCESS_KEY_ID: seaweedfs
+      AWS_SECRET_ACCESS_KEY: seaweedfs
+    volumes:
+      - seaweedfs_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8888"]
+      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  seaweedfs_create_bucket:
+    image: quay.io/minio/mc:latest
+    container_name: reactive-resume-seaweedfs-init
+    restart: on-failure
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5;
+        mc alias set seaweedfs http://seaweedfs:8333 seaweedfs seaweedfs;
+        mc mb seaweedfs/reactive-resume;
+        exit 0;
+      "
+    networks: [storage_network]
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+
+  reactive-resume:
+    image: ghcr.io/reactive-resume/reactive-resume:latest
+    container_name: reactive-resume
+    restart: unless-stopped
+    networks: [data_network, storage_network]
+    ports:
+      - "9032:3000"
+    env_file: [.env]
+    volumes:
+      - data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+      seaweedfs_create_bucket:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then((r) => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1));"]
+      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "sablier.enable=true"
+      - "sablier.group=reactive-resume"
+      - "glance.name=Reactive Resume"
+      - "glance.url=https://reactive-resume.lab"
+      - "glance.category=on-demand"
+
+volumes:
+  postgres_data:
+  redis_data:
+  seaweedfs_data:
+  data:
+
+networks:
+  data_network:
+  storage_network:

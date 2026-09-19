@@ -1,8 +1,16 @@
-# Minimal starting config: just scrapes Prometheus itself.
-# TODO: add scrape targets for other services (Grafana, node_exporter,
-# cadvisor, etc.) as they come online — add a new job under scrape_configs.
 global:
   scrape_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        # alertmanager's port is bound only to 127.0.0.1 and the tailscale
+        # interface (not 0.0.0.0), so this container reaches it via the
+        # host's tailscale IP rather than host.docker.internal.
+        - targets: ["100.117.222.10:9014"]
+
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
 
 scrape_configs:
   - job_name: prometheus
@@ -14,3 +22,32 @@ scrape_configs:
     # rather than host.docker.internal.
     static_configs:
       - targets: ["100.117.222.10:10000"]
+  - job_name: blackbox-http
+    # Active up/down probing for services with no native /metrics endpoint.
+    # ServiceDown alert (rules/service-availability.yml) fires on
+    # probe_success == 0 and routes to Alertmanager -> email.
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          # Probed directly on each service's own port, not through Caddy,
+          # so a Caddy misconfig doesn't mask (or fake) a backend outage.
+          - "http://100.117.222.10:2283"  # immich
+          - "http://100.117.222.10:4533"  # navidrome
+          - "http://100.117.222.10:3080"  # adguard
+          - "http://100.117.222.10:9007"  # syncthing
+          - "http://100.117.222.10:9010"  # semaphore
+          - "http://100.117.222.10:3004"  # sparky
+          - "http://100.117.222.10:9018"  # dayglance
+          - "http://100.117.222.10:9029/healthz"  # glancevault
+          - "http://100.117.222.10:9031/health"  # job-ops
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        # blackbox-exporter's port is bound only to 127.0.0.1 and the
+        # tailscale interface (not 0.0.0.0); same reasoning as sablier above.
+        replacement: 100.117.222.10:9115

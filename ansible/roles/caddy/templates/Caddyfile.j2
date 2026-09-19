@@ -47,6 +47,12 @@
 {% endif %}
     reverse_proxy 127.0.0.1:{{ service.port }} {
         header_up X-Forwarded-Proto https
+{% if service.sse is defined and service.sse %}
+        # Disable response buffering: an SSE endpoint (e.g. GLANCEvault's
+        # /events) needs each chunk flushed immediately, or push degrades to
+        # polling since the client never sees events until the buffer fills.
+        flush_interval -1
+{% endif %}
     }
 {% endif %}
 
@@ -55,7 +61,13 @@
 {% if service.security_headers | default(true) %}
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "no-referrer"
+        # "same-origin" not "no-referrer": Firefox nulls out the Origin
+        # header (not just Referer) on same-origin form POSTs when the
+        # policy is "no-referrer", which fails Django's CSRF Origin check
+        # (seen on healthchecks' magic-link login: "Origin checking failed
+        # - null does not match any trusted origins"). same-origin still
+        # withholds the referrer from other sites.
+        Referrer-Policy "same-origin"
 {% endif %}
     }
 {% endmacro %}

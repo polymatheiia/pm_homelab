@@ -8,6 +8,21 @@
     path: /usr/local/bin/caddy-sablier
   register: caddy_sablier_bin
 
+- name: Set expected Caddy plugin list
+  set_fact:
+    caddy_plugins:
+      - github.com/sablierapp/sablier-caddy-plugin@latest
+      - github.com/caddy-dns/cloudflare@latest
+
+- name: Compute expected Caddy plugin-set stamp
+  # `creates:` below can only compare against a filename, so the stamp
+  # encodes the exact --with plugin list; any future change to that list
+  # (like adding caddy-dns/cloudflare did) produces a new stamp filename,
+  # forcing a rebuild instead of silently reusing a stale binary that's
+  # missing the new plugin.
+  set_fact:
+    caddy_build_stamp: "{{ (caddy_plugins | join(',')) | hash('sha1') }}"
+
 - name: Build custom Caddy with Sablier + Cloudflare DNS plugins (via caddy:builder image)
   # Cloudflare DNS plugin enables DNS-01 ACME challenges, so Caddy can get
   # real Let's Encrypt certs for public domains (e.g. tunneled through
@@ -20,7 +35,12 @@
     --with github.com/caddy-dns/cloudflare@latest
     --output /out/caddy-sablier
   args:
-    creates: "{{ homelab_base }}/build/caddy-sablier"
+    creates: "{{ homelab_base }}/build/caddy-sablier.{{ caddy_build_stamp }}.stamp"
+
+- name: Record Caddy plugin-set stamp for this build
+  file:
+    path: "{{ homelab_base }}/build/caddy-sablier.{{ caddy_build_stamp }}.stamp"
+    state: touch
 
 - name: Install custom Caddy-Sablier binary
   copy:

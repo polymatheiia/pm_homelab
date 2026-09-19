@@ -36,5 +36,9 @@ services/scrutiny/config/scrutiny.db
 # bridge-manager runtime (cloned + built by Ansible)
 /bridge-manager/
 
+# Alertmanager SMTP password (alertmanager.yml has no env-var expansion, so
+# this is a smtp_auth_password_file secret instead of a .env value)
+services/alertmanager/secrets/
+
 # Custom Caddy binary built by the caddy role (xcaddy build output)
 /build/

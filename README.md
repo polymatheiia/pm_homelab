@@ -31,7 +31,7 @@ If you are not on Arch, the playbook will not work without modifying these roles
 
 ### On-demand services (Sablier)
 
-This box has 7.7GB RAM and no swap. Most of the ~20 self-hosted tools in
+This box has 7.7GB RAM and no swap. Most of the 30+ self-hosted tools in
 `services/` are things used in bursts, not continuously — a PDF tool, a
 BI dashboard, a backup runner, a budgeting app — so holding them in
 memory 24/7 would waste most of that budget on idle processes. Instead
@@ -51,7 +51,7 @@ How it fits together:
   containers, grouped by a `sablier.group=<name>` label on the
   container (set in each service's `docker-compose.yml`) and gated by
   `sablier.enable=true`.
-- **Each service is registered** in `ansible/group_vars/all.yml` with
+- **Each service is registered** in `ansible/group_vars/all/main.yml` with
   `sablier: true` and a `sablier_session_duration` — how long it stays
   up after the last request before Sablier shuts it down again (10–30
   minutes depending on the service; a quick PDF conversion doesn't need
@@ -77,9 +77,9 @@ normally.
 
 A handful of services stay **always-on** instead (Immich, Navidrome,
 Glance, AdGuard, Sparky Fitness, Syncthing,
-cloudflared, Prometheus, Healthchecks.io, dayGLANCE, Semaphore) — things that need
-to be listening continuously (DNS, reverse proxy,
-continuous file sync) rather than started on demand.
+cloudflared, Prometheus, Alertmanager, Blackbox Exporter, dayGLANCE, Semaphore) —
+things that need to be listening continuously (DNS, reverse proxy,
+continuous file sync, monitoring) rather than started on demand.
 
 ## Remote Access
 
@@ -89,7 +89,7 @@ TLS is terminated at Caddy using its internal CA (`tls internal`). Trust the CA 
 
 ### DNS setup (one-time, per deployment)
 
-1. Set `tailscale_ip` in `ansible/group_vars/all.yml` to the server's Tailscale IP:
+1. Set `tailscale_ip` in `ansible/group_vars/all/main.yml` to the server's Tailscale IP:
    ```bash
    tailscale ip -4
    ```
@@ -132,6 +132,15 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Glance          | 8080          | config files in repo                 | yes |
 | AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
+| Syncthing       | 9007          | `.env`-configured                    | yes |
+| dayGLANCE       | 9018          | none (no volume — see the GLANCE family caveat below) | yes |
+| Semaphore       | 9010          | via `.env`                           | yes |
+| Prometheus      | 9012          | `services/prometheus/prometheus.yml` + `rules/` | yes |
+| Alertmanager    | 9014 (proxied; internal port 9093) | `services/alertmanager/alertmanager.yml` + `secrets/smtp_password` | yes |
+| GLANCEvault     | 9029          | Docker volume (SQLite), sync backend for the GLANCE family | yes |
+| job-ops         | 9031          | Docker volumes (data, Codex home, Tectonic cache) | yes |
+| Blackbox Exporter | 9115 (internal, no vhost) | none — active HTTP prober feeding Prometheus/Alertmanager | yes |
+| cloudflared     | n/a (internal, no vhost) | via `.env` (tunnel token) | yes |
 
 ## On-Demand Services
 
@@ -147,16 +156,20 @@ the last request before Sablier stops it again.
 | Activepieces | 9009 | Workflow automation                        | 20m |
 | Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |
 | Stirling-PDF | 9016 | PDF toolkit                                | 15m |
-| Gramps Web   | 9019 | Genealogy software                         | 20m |
 | Plakar       | 9021 | Backup (targets: Immich library, Karakeep, the retired Nextcloud data archive) | 10m |
 | Grafana      | 9022 | BI/analytics, pairs with Prometheus        | 15m |
-| Splitpro     | 9023 | Expense splitting                          | 15m |
+| Splitpro     | 9023 | Expense splitting (also public at `splitpro.grabovska.com` via Cloudflare Tunnel) | 15m |
 | Actual       | 9024 | Budgeting (envelope-style, bank sync)      | 15m |
 | Ryot         | 9025 | Media/life tracker (movies/TV/books/games) | 20m |
 | lifeGLANCE   | 9027 | Zoomable personal timeline (GLANCE family) | 20m |
 | lastGLANCE   | 9028 | Recency tracker for chores/upkeep (GLANCE family) | 20m |
+| Libre Closet | 9030 | Wardrobe organizer/outfit planner          | 20m |
+| Reactive Resume | 9032 | Resume/CV builder, feeds job-ops' tailored-resume generation | 20m |
 | GramVault Atlas | 8777 | Saved Instagram pipeline (pull/import → enrich → categorize → digest → Obsidian), RAG chat + reels-style feed, bundled Ollama | 20m |
 | Karakeep     | 3000 | Bookmark/read-later manager with full-text search + screenshotting | 20m |
+
+Gramps Web (genealogy) and Healthchecks (replaced by Prometheus + Blackbox
+Exporter + Alertmanager) were removed.
 
 1Panel (`onepanel`) is deliberately excluded from Ansible deploy — no
 official docker-compose path exists, only a host-level installer that
@@ -164,7 +177,7 @@ wants to manage the whole machine. Port 9005 is reserved but unused.
 FreedomBox and localsend were considered but dropped: FreedomBox has no
 viable Docker path (its containerization project was archived in 2019),
 and localsend is a peer-to-peer LAN client for your own devices, not a
-headless service — see `ansible/group_vars/all.yml` for the full
+headless service — see `ansible/group_vars/all/main.yml` for the full
 reasoning as inline comments.
 
 ### GramVault Atlas
@@ -198,21 +211,37 @@ proxied to the backend — after a container recreation the cached IP would be s
 ### Bridge Manager
 
 [Beeper bridge-manager](https://github.com/beeper/bridge-manager) (`bbctl`) is installed and managed
-by the `bridge-manager` Ansible role. Bridges are defined in `ansible/group_vars/all.yml` under
+by the `bridge-manager` Ansible role. Bridges are defined in `ansible/group_vars/all/main.yml` under
 `bridge_manager_bridges` and run as systemd units (`bbctl-<name>.service`).
 
 ## Required manual config (.env)
 
 Some services require a `services/<service>/.env` file (not committed). Create it before running Ansible.
 
-Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all.yml`):
+Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all/main.yml`):
 
 | Service         | Template available |
 |-----------------|--------------------|
 | Immich          | no                 |
 | Karakeep        | no                 |
 | Sparky Fitness  | no                 |
+| cloudflared     | yes                |
+| GLANCEvault     | yes                |
+| Libre Closet    | yes                |
+| job-ops         | yes                |
+| Reactive Resume | yes                |
+| Semaphore       | yes                |
+| Mealie          | yes                |
+| DroppedNeedle   | yes                |
+| Activepieces    | yes                |
+| Grafana         | yes                |
+| Splitpro        | yes                |
+| Ryot            | yes                |
+| Calibre-Web     | yes                |
 | GramVault Atlas | yes — copy `services/gramvault-atlas/.env.example` → `.env` (just host uid/gid) |
+
+For everything marked "yes", copy that service's `.env.example` → `.env` and fill
+in the `TODO: manual setup required` values before running the playbook.
 
 The playbook will fail with a clear error if a required `.env` is missing.
 

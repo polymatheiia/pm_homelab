@@ -59,18 +59,40 @@ services:
     compose_path: "{{ homelab_base }}/services/prometheus"
     manage_env: false
     port: 9012
-  - name: healthchecks
-    compose_path: "{{ homelab_base }}/services/healthchecks"
-    manage_env: true
-    port: 9013
-    # Postgres bind-mount (DB_DATA_LOCATION); owned by the container's
-    # postgres uid, not homelab_user. Never let the sync task chown it.
-    sync_excludes:
-      - postgres-data
+  - name: blackbox-exporter
+    compose_path: "{{ homelab_base }}/services/blackbox-exporter"
+    manage_env: false
+    port: 9115
+    no_vhost: true
+  - name: alertmanager
+    compose_path: "{{ homelab_base }}/services/alertmanager"
+    manage_env: false
+    port: 9014
   - name: dayglance
     compose_path: "{{ homelab_base }}/services/dayglance"
     manage_env: false
     port: 9018
+  - name: glancevault
+    compose_path: "{{ homelab_base }}/services/glancevault"
+    manage_env: true
+    port: 9029
+    sse: true
+  - name: libre-closet
+    compose_path: "{{ homelab_base }}/services/libre-closet"
+    manage_env: true
+    port: 9030
+    sablier: true
+    sablier_session_duration: 20m
+  - name: job-ops
+    compose_path: "{{ homelab_base }}/services/job-ops"
+    manage_env: true
+    port: 9031
+  - name: reactive-resume
+    compose_path: "{{ homelab_base }}/services/reactive-resume"
+    manage_env: true
+    port: 9032
+    sablier: true
+    sablier_session_duration: 20m
   - name: semaphore
     compose_path: "{{ homelab_base }}/services/semaphore"
     manage_env: true
@@ -111,12 +133,6 @@ services:
     port: 9016
     sablier: true
     sablier_session_duration: 15m
-  - name: grampsweb
-    compose_path: "{{ homelab_base }}/services/grampsweb"
-    manage_env: true
-    port: 9019
-    sablier: true
-    sablier_session_duration: 20m
   - name: plakar
     compose_path: "{{ homelab_base }}/services/plakar"
     manage_env: false

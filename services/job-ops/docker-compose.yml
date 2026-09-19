@@ -1,0 +1,35 @@
+# job-ops: https://github.com/DaKheera47/job-ops
+# Always-on (not sablier-gated): its job-search pipelines are meant to run on
+# a schedule in the background, not only while someone has the UI open.
+services:
+  job-ops:
+    image: ghcr.io/dakheera47/job-ops:latest
+    container_name: job-ops
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      PYTHON_PATH: /usr/bin/python3
+      CODEX_HOME: /app/codex-home
+    ports:
+      - "9031:3001"
+    volumes:
+      - data:/app/data
+      - codex-home:/app/codex-home
+      - tectonic-cache:/root/.cache/Tectonic
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "glance.name=job-ops"
+      - "glance.url=https://job-ops.lab"
+      - "glance.category=core"
+
+volumes:
+  data:
+  codex-home:
+  tectonic-cache:

@@ -1,0 +1,13 @@
+services:
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-exporter
+    restart: unless-stopped
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    ports:
+      # Bound to loopback + tailscale IP only (not 0.0.0.0), same pattern as
+      # sablier: Prometheus (in a container) reaches it via the host's
+      # tailscale IP, nothing else needs it.
+      - "127.0.0.1:9115:9115"
+      - "100.117.222.10:9115:9115"
