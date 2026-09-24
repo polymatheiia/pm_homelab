@@ -83,20 +83,12 @@ services:
     port: 9030
     sablier: true
     sablier_session_duration: 20m
-  - name: job-ops
-    compose_path: "{{ homelab_base }}/services/job-ops"
-    manage_env: true
-    port: 9031
   - name: reactive-resume
     compose_path: "{{ homelab_base }}/services/reactive-resume"
     manage_env: true
     port: 9032
     sablier: true
     sablier_session_duration: 20m
-  - name: semaphore
-    compose_path: "{{ homelab_base }}/services/semaphore"
-    manage_env: true
-    port: 9010
 
   # --- On-demand (Sablier-gated) new services ---
   - name: mealie
@@ -115,24 +107,12 @@ services:
   # docker-compose path exists (only a host-level installer script that wants
   # to manage the whole machine). See services/onepanel/README.md. Port 9005
   # reserved but unused until an operator decision is made.
-  - name: activepieces
-    compose_path: "{{ homelab_base }}/services/activepieces"
-    manage_env: true
-    port: 9009
-    sablier: true
-    sablier_session_duration: 20m
   - name: glances
     compose_path: "{{ homelab_base }}/services/glances"
     manage_env: false
     port: 9015
     sablier: true
     sablier_session_duration: 10m
-  - name: stirling-pdf
-    compose_path: "{{ homelab_base }}/services/stirling-pdf"
-    manage_env: false
-    port: 9016
-    sablier: true
-    sablier_session_duration: 15m
   - name: plakar
     compose_path: "{{ homelab_base }}/services/plakar"
     manage_env: false
@@ -160,12 +140,6 @@ services:
     port: 9024
     sablier: true
     sablier_session_duration: 15m
-  - name: ryot
-    compose_path: "{{ homelab_base }}/services/ryot"
-    manage_env: true
-    port: 9025
-    sablier: true
-    sablier_session_duration: 20m
   - name: lifeglance
     compose_path: "{{ homelab_base }}/services/lifeglance"
     manage_env: false

@@ -77,7 +77,7 @@ normally.
 
 A handful of services stay **always-on** instead (Immich, Navidrome,
 Glance, AdGuard, Sparky Fitness, Syncthing,
-cloudflared, Prometheus, Alertmanager, Blackbox Exporter, dayGLANCE, Semaphore) —
+cloudflared, Prometheus, Alertmanager, Blackbox Exporter, dayGLANCE) —
 things that need to be listening continuously (DNS, reverse proxy,
 continuous file sync, monitoring) rather than started on demand.
 
@@ -134,11 +134,9 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
 | Syncthing       | 9007          | `.env`-configured                    | yes |
 | dayGLANCE       | 9018          | none (no volume — see the GLANCE family caveat below) | yes |
-| Semaphore       | 9010          | via `.env`                           | yes |
 | Prometheus      | 9012          | `services/prometheus/prometheus.yml` + `rules/` | yes |
 | Alertmanager    | 9014 (proxied; internal port 9093) | `services/alertmanager/alertmanager.yml` + `secrets/smtp_password` | yes |
 | GLANCEvault     | 9029          | Docker volume (SQLite), sync backend for the GLANCE family | yes |
-| job-ops         | 9031          | Docker volumes (data, Codex home, Tectonic cache) | yes |
 | Blackbox Exporter | 9115 (internal, no vhost) | none — active HTTP prober feeding Prometheus/Alertmanager | yes |
 | cloudflared     | n/a (internal, no vhost) | via `.env` (tunnel token) | yes |
 
@@ -153,23 +151,21 @@ the last request before Sablier stops it again.
 | Mealie       | 9001 | Recipe manager                             | 30m |
 | DroppedNeedle| 9003 | Music acquisition (replaces Lidarr)        | 30m |
 | Calibre-Web  | 9008 | Ebook library browser/reader (OPDS), reads /srv/pm_files/Books/Calibre Library read-only | 15m |
-| Activepieces | 9009 | Workflow automation                        | 20m |
 | Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |
-| Stirling-PDF | 9016 | PDF toolkit                                | 15m |
 | Plakar       | 9021 | Backup (targets: Immich library, Karakeep, the retired Nextcloud data archive) | 10m |
 | Grafana      | 9022 | BI/analytics, pairs with Prometheus        | 15m |
 | Splitpro     | 9023 | Expense splitting (also public at `splitpro.grabovska.com` via Cloudflare Tunnel) | 15m |
 | Actual       | 9024 | Budgeting (envelope-style, bank sync)      | 15m |
-| Ryot         | 9025 | Media/life tracker (movies/TV/books/games) | 20m |
 | lifeGLANCE   | 9027 | Zoomable personal timeline (GLANCE family) | 20m |
 | lastGLANCE   | 9028 | Recency tracker for chores/upkeep (GLANCE family) | 20m |
 | Libre Closet | 9030 | Wardrobe organizer/outfit planner          | 20m |
-| Reactive Resume | 9032 | Resume/CV builder, feeds job-ops' tailored-resume generation | 20m |
+| Reactive Resume | 9032 | Resume/CV builder | 20m |
 | GramVault Atlas | 8777 | Saved Instagram pipeline (pull/import → enrich → categorize → digest → Obsidian), RAG chat + reels-style feed, bundled Ollama | 20m |
 | Karakeep     | 3000 | Bookmark/read-later manager with full-text search + screenshotting | 20m |
 
-Gramps Web (genealogy) and Healthchecks (replaced by Prometheus + Blackbox
-Exporter + Alertmanager) were removed.
+Gramps Web (genealogy), Healthchecks (replaced by Prometheus + Blackbox
+Exporter + Alertmanager), job-ops, Semaphore, Activepieces, Ryot and
+Stirling-PDF were removed.
 
 1Panel (`onepanel`) is deliberately excluded from Ansible deploy — no
 official docker-compose path exists, only a host-level installer that
@@ -228,15 +224,11 @@ Services that need a `.env` (have `manage_env: true` in `ansible/group_vars/all/
 | cloudflared     | yes                |
 | GLANCEvault     | yes                |
 | Libre Closet    | yes                |
-| job-ops         | yes                |
 | Reactive Resume | yes                |
-| Semaphore       | yes                |
 | Mealie          | yes                |
 | DroppedNeedle   | yes                |
-| Activepieces    | yes                |
 | Grafana         | yes                |
 | Splitpro        | yes                |
-| Ryot            | yes                |
 | Calibre-Web     | yes                |
 | GramVault Atlas | yes — copy `services/gramvault-atlas/.env.example` → `.env` (just host uid/gid) |
 

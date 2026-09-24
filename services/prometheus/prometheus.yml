@@ -37,11 +37,9 @@ scrape_configs:
           - "http://100.117.222.10:4533"  # navidrome
           - "http://100.117.222.10:3080"  # adguard
           - "http://100.117.222.10:9007"  # syncthing
-          - "http://100.117.222.10:9010"  # semaphore
           - "http://100.117.222.10:3004"  # sparky
           - "http://100.117.222.10:9018"  # dayglance
           - "http://100.117.222.10:9029/healthz"  # glancevault
-          - "http://100.117.222.10:9031/health"  # job-ops
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
