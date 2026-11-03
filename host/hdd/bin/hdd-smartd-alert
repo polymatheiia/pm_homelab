@@ -1,0 +1,5 @@
+#!/bin/bash
+# Called by smartd via "-M exec"; smartd sets the SMARTD_* variables.
+exec /usr/local/bin/hdd-alert "SMART_${SMARTD_FAILTYPE:-Unknown}" \
+  "${SMARTD_SUBJECT:-SMART problem on ${SMARTD_DEVICE:-HDD}}" \
+  "${SMARTD_FULLMESSAGE:-${SMARTD_MESSAGE:-}}"

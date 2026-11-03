@@ -31,3 +31,29 @@
   command: nvidia-ctk runtime configure --runtime=docker
   when: nvidia_runtime_check.rc != 0
   notify: Restart Docker
+
+- name: Create Docker systemd override directory
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Make Docker wait for the Tailscale IP before starting containers
+  # Containers that publish ports on {{ tailscale_ip }} (e.g. Sablier) come up
+  # with NO host ports at all if dockerd starts before tailscale0 has its IP.
+  # Capped at 60s and '-' prefixed so a broken Tailscale never blocks Docker.
+  copy:
+    content: |
+      [Unit]
+      After=tailscaled.service
+      Wants=tailscaled.service
+
+      [Service]
+      ExecStartPre=-/usr/bin/tailscale wait --timeout=60s
+    dest: /etc/systemd/system/docker.service.d/tailscale.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd daemon

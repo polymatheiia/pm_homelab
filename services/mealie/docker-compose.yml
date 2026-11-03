@@ -5,7 +5,8 @@ services:
     restart: unless-stopped
     stop_grace_period: 60s
     ports:
-      - "9001:9000"
+      - "127.0.0.1:9001:9000"
+      - "100.117.222.10:9001:9000"
     env_file: [.env]
     deploy:
       resources:

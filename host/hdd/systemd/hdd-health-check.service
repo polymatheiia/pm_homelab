@@ -1,0 +1,6 @@
+[Unit]
+Description=HDD sanity check (mount, kernel errors, CRC counter)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hdd-health-check

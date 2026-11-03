@@ -4,7 +4,8 @@ services:
     container_name: actual
     restart: unless-stopped
     ports:
-      - "9024:5006"
+      - "127.0.0.1:9024:5006"
+      - "100.117.222.10:9024:5006"
     volumes:
       - actual-data:/data
     healthcheck:

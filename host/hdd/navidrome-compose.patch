@@ -1,0 +1,19 @@
+--- a/services/navidrome/docker-compose.yml	2026-10-10 11:49:57.724685523 +0200
++++ b/services/navidrome/docker-compose.yml	2026-10-10 11:49:57.746078970 +0200
+@@ -11,7 +11,15 @@
+       ND_ENABLETRANSCODINGCONFIG: "true"
+     volumes:
+       - /srv/homelab/navidrome:/data
+-      - /srv/media/music:/music:ro
++      # Music lives on the HDD. create_host_path: false + the immutable empty
++      # /mnt/hdd mountpoint make Docker refuse to start if the HDD isn't mounted,
++      # instead of Navidrome scanning an empty dir and dropping the library.
++      - type: bind
++        source: /mnt/hdd/srv/media/music
++        target: /music
++        read_only: true
++        bind:
++          create_host_path: false
+     ports:
+       - "4533:4533"
+     restart: unless-stopped

@@ -1,0 +1,20 @@
+#!/bin/bash
+# Usage: hdd-alert <AlertName> <summary> [description]
+# Posts one alert to the local Alertmanager, which emails it through the
+# Proton Bridge relay (see services/alertmanager/alertmanager.yml).
+# endsAt is +90 min: the hourly check keeps a persisting problem "firing",
+# so Alertmanager re-sends it every repeat_interval (3h) until it's fixed.
+set -u
+name=$1 summary=$2 desc=${3:-}
+ends=$(date -u -d '+90 min' +%FT%TZ)
+payload=$(jq -n --arg n "$name" --arg s "$summary" --arg d "$desc" --arg e "$ends" \
+  '[{labels:{alertname:$n,severity:"critical",host:"forestmachine",component:"hdd"},
+     annotations:{summary:$s,description:$d},endsAt:$e}]')
+if curl -fsS -m 10 -H 'Content-Type: application/json' -d "$payload" \
+     http://127.0.0.1:9014/api/v2/alerts >/dev/null; then
+  logger -t hdd-alert -p warning "sent: $name: $summary"
+else
+  # Alertmanager is a container; if Docker itself is down, nothing gets emailed.
+  logger -t hdd-alert -p err "NOT SENT (Alertmanager unreachable): $name: $summary"
+  exit 1
+fi

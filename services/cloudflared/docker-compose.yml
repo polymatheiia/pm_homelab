@@ -5,5 +5,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    command: tunnel --no-autoupdate run --token $TUNNEL_TOKEN
+    # Token comes from TUNNEL_TOKEN in .env; kept off the command line, where any local user could read it via ps.
+    command: tunnel --no-autoupdate run
     # No ports mapped: this is an outbound-only tunnel to Cloudflare's edge.

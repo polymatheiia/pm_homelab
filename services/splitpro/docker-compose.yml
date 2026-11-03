@@ -32,7 +32,8 @@ services:
     container_name: splitpro
     restart: unless-stopped
     ports:
-      - "9023:3000"
+      - "127.0.0.1:9023:3000"
+      - "100.117.222.10:9023:3000"
     env_file: [.env]
     environment:
       PORT: 3000

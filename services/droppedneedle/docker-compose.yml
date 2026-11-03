@@ -12,7 +12,8 @@ services:
       TZ: ${TZ}
       SLSKD_DOWNLOADS_PATH: /data/slskd/complete
     ports:
-      - "9003:8688"
+      - "127.0.0.1:9003:8688"
+      - "100.117.222.10:9003:8688"
     volumes:
       - config:/app/config
       - cache:/app/cache

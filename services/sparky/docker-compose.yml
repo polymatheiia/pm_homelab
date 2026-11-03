@@ -50,6 +50,7 @@ services:
       # --- Server Runtime & Admin ---
       NODE_ENV: ${NODE_ENV:-production}
       TZ: ${TZ:-Etc/UTC}
+      NODE_EXTRA_CA_CERTS: /certs/caddy-root.crt # trust Caddy local CA for *.lab (Mealie)
       SPARKY_FITNESS_LOG_LEVEL: ${SPARKY_FITNESS_LOG_LEVEL:-ERROR}
       SPARKY_FITNESS_PUBLIC_API_DOCS: ${SPARKY_FITNESS_PUBLIC_API_DOCS:-false}
       SPARKY_FITNESS_DISABLE_SIGNUP: ${SPARKY_FITNESS_DISABLE_SIGNUP:-false}
@@ -128,6 +129,11 @@ services:
     volumes:
       - ${SERVER_BACKUP_PATH:-./backup}:/app/SparkyFitnessServer/backup # Mount volume for backups
       - ${SERVER_UPLOADS_PATH:-./uploads}:/app/SparkyFitnessServer/uploads # Mount volume for Profile pictures and excercise images
+      - ./certs/caddy-root.crt:/certs/caddy-root.crt:ro # Caddy local root CA, see NODE_EXTRA_CA_CERTS
+      # Local patch: Garmin menstrual data -> cycle tracker (upstream doesn't store it).
+      # See patches/README.md; re-diff against upstream on image updates.
+      - ./patches/services/garminService.ts:/app/SparkyFitnessServer/services/garminService.ts:ro
+      - ./patches/services/garmin/garminCycleProcessor.ts:/app/SparkyFitnessServer/services/garmin/garminCycleProcessor.ts:ro
     # Uncomment the below section to mount the file-based secrets
     #secrets:
     #  - sparkyfitness_db_password
@@ -147,7 +153,8 @@ services:
     ports:
       # Container port must track NGINX_LISTEN_PORT, or nginx listens on an
       # unpublished port and the app becomes unreachable.
-      - "${SPARKY_FITNESS_FRONTEND_PORT:-3004}:${NGINX_LISTEN_PORT:-80}"
+      - "127.0.0.1:${SPARKY_FITNESS_FRONTEND_PORT:-3004}:${NGINX_LISTEN_PORT:-80}"
+      - "100.117.222.10:${SPARKY_FITNESS_FRONTEND_PORT:-3004}:${NGINX_LISTEN_PORT:-80}"
     environment:
       SPARKY_FITNESS_FRONTEND_URL: ${SPARKY_FITNESS_FRONTEND_URL}
       SPARKY_FITNESS_SERVER_HOST: sparkyfitness-server # Internal Docker service name for the backend

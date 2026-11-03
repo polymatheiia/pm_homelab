@@ -42,7 +42,8 @@ services:
     restart: unless-stopped
     entrypoint: ["sleep", "infinity"]
     ports:
-      - "9021:9021"
+      - "127.0.0.1:9021:9021"
+      - "100.117.222.10:9021:9021"
     volumes:
       - ./backups:/home/plakar/backups
       - ./repo:/home/plakar/.plakar

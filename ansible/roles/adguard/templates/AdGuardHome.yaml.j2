@@ -116,6 +116,10 @@ filtering:
   rewrites:
     - domain: "*.lab"
       answer: "{{ tailscale_ip }}"
+    # Public DNS has its own A record for the node's ts.net name; without this
+    # rewrite, clients that use AdGuard instead of MagicDNS get the wrong IP.
+    - domain: "{{ tailscale_fqdn }}"
+      answer: "{{ tailscale_ip }}"
 log:
   enabled: true
   file: ""

@@ -8,7 +8,8 @@ services:
     environment:
       DATA_PATH: /app/data
     ports:
-      - "9030:3000"
+      - "127.0.0.1:9030:3000"
+      - "100.117.222.10:9030:3000"
     volumes:
       - data:/app/data
     labels:

@@ -13,8 +13,9 @@ services:
       GLANCEVAULT_PORT: "8080"
       GLANCEVAULT_STORAGE_PATH: /data/glancevault.db
     ports:
-      # Loopback only — reached through Caddy, never directly.
+      # Loopback (Caddy) + tailscale IP (Prometheus blackbox probe), not 0.0.0.0.
       - "127.0.0.1:9029:8080"
+      - "100.117.222.10:9029:8080"
     volumes:
       - data:/data
     healthcheck:

@@ -4,6 +4,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://host.docker.internal:9012
+    # Prometheus is bound to loopback + tailscale only, so host-gateway can't reach it.
+    url: http://100.117.222.10:9012
     isDefault: true
     editable: true

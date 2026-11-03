@@ -2,13 +2,17 @@ services:
   calibre-web:
     image: lscr.io/linuxserver/calibre-web:latest
     container_name: calibre-web
+    # Not behind Sablier: a cold start takes ~20s, and KOReader gives up on an
+    # OPDS request after 10s and can't parse Sablier's HTML waiting page.
     restart: unless-stopped
     env_file: [.env]
     ports:
-      - "9008:8083"
+      - "127.0.0.1:9008:8083"
     volumes:
-      - config:/config
-      - /srv/pm_files/Books/Calibre Library:/books
+      # New volume: the old "config" volume holds Calibre-Web Automated state.
+      - appdata:/config
+      # Read-only on purpose: quemachine owns this copy (see bookstore-sync).
+      - /srv/pm_files/Books/Bookstore:/books:ro
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:8083/"]
       interval: 10s
@@ -16,12 +20,10 @@ services:
       start_period: 30s
       timeout: 10s
     labels:
-      - "sablier.enable=true"
-      - "sablier.group=calibre-web"
       - "glance.name=Calibre-Web"
       - "glance.icon=si:librarything"
       - "glance.url=https://calibre-web.lab"
-      - "glance.category=on-demand"
+      - "glance.category=core"
 
 volumes:
-  config:
+  appdata:

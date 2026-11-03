@@ -16,7 +16,8 @@ services:
       - "glance.url=https://syncthing.lab"
       - "glance.category=core"
     ports:
-      - "9007:8384"       # Web GUI
+      - "127.0.0.1:9007:8384"       # Web GUI
+      - "100.117.222.10:9007:8384"       # Web GUI
       - "22000:22000/tcp" # sync protocol (TCP)
       - "22000:22000/udp" # sync protocol (QUIC)
       - "21027:21027/udp" # local discovery broadcast

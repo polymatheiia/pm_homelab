@@ -82,6 +82,21 @@
     tls internal
 {{ site_body(service) }}
 }
+{% if service.tailnet_https is defined and service.tailnet_https %}
+
+{{ tailscale_fqdn }} {
+{% if tailscale_ip %}
+    bind {{ tailscale_ip }}
+{% endif %}
+
+    # Explicit: without it Caddy tries Let's Encrypt (ACME) for this name and
+    # fails. Needs TS_PERMIT_CERT_UID=caddy, see roles/caddy/tasks/main.yml.
+    tls {
+        get_certificate tailscale
+    }
+{{ site_body(service) }}
+}
+{% endif %}
 {% if service.public_domain is defined %}
 
 {{ service.public_domain }} {
@@ -92,6 +107,11 @@
     tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
+{% if service.public_paths is defined %}
+
+    @not_public not path {{ service.public_paths | join(' ') }}
+    respond @not_public 404
+{% endif %}
 {{ site_body(service) }}
 }
 {% endif %}

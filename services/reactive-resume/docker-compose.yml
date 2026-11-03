@@ -83,7 +83,8 @@ services:
     restart: unless-stopped
     networks: [data_network, storage_network]
     ports:
-      - "9032:3000"
+      - "127.0.0.1:9032:3000"
+      - "100.117.222.10:9032:3000"
     env_file: [.env]
     volumes:
       - data:/app/data

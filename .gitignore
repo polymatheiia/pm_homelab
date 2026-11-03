@@ -30,6 +30,9 @@ services/*/*data/
 services/*/files/
 services/*/library/
 services/plakar/repo/
+services/sparky/backup/
+services/sparky/postgresql/
+services/sparky/uploads/
 
 # bridge-manager runtime (cloned + built by Ansible)
 /bridge-manager/

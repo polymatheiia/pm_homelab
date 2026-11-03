@@ -1,0 +1,26 @@
+# Starts the stacks whose data lives on the HDD only once /mnt/hdd is really
+# mounted, and stops them if it goes away (BindsTo). Nothing else depends on
+# the HDD, so AdGuard and the rest of Docker keep running if it fails.
+# Second safety net: the compose files mount HDD paths with
+# create_host_path: false and /mnt/hdd is chattr +i, so Docker refuses to
+# start these containers on an empty mountpoint even outside this unit.
+[Unit]
+Description=HDD-backed Docker stacks (Navidrome, Immich)
+Requires=docker.service
+After=docker.service
+RequiresMountsFor=/mnt/hdd
+BindsTo=mnt-hdd.mount
+OnFailure=hdd-alert@%n.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStartSec=5min
+ExecStartPre=/usr/bin/test -e /mnt/hdd/srv/.hdd-marker
+ExecStart=/usr/bin/docker compose -f /srv/pm_homelab/services/navidrome/docker-compose.yml up -d
+ExecStart=/usr/bin/docker compose -f /srv/pm_homelab/services/immich/docker-compose.yml up -d
+ExecStop=/usr/bin/docker compose -f /srv/pm_homelab/services/immich/docker-compose.yml stop
+ExecStop=/usr/bin/docker compose -f /srv/pm_homelab/services/navidrome/docker-compose.yml stop
+
+[Install]
+WantedBy=multi-user.target

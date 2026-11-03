@@ -1,0 +1,7 @@
+# Generic OnFailure= target: emails "<unit> failed" via hdd-alert.
+[Unit]
+Description=Email alert: %i failed
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hdd-alert HDDUnitFailed "%i failed on forestmachine" "Check: systemctl status %i ; journalctl -b -u %i"

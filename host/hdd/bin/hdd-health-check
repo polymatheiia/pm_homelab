@@ -1,0 +1,36 @@
+#!/bin/bash
+# Hourly HDD sanity check (hdd-health-check.timer). Covers what smartd doesn't:
+# missing disk, not mounted, read-only remount, kernel I/O / link errors,
+# and growth of the UDMA CRC counter (cable problems).
+set -u
+dev=/dev/disk/by-id/ata-SAMSUNG_HD502HJ_S20BJ9EB300832
+state=/var/lib/hdd-health
+mkdir -p "$state"
+problems=()
+
+if [ ! -b "$dev" ]; then
+  problems+=("disk not present ($dev)")
+else
+  sd=$(basename "$(readlink -f "$dev")")                       # e.g. sdb
+  ata=$(readlink -f "/sys/block/$sd" | grep -o 'ata[0-9]*' | head -1)  # e.g. ata5
+  mountpoint -q /mnt/hdd || problems+=("/mnt/hdd is not mounted")
+  [ -e /mnt/hdd/srv/.hdd-marker ] || problems+=("marker /mnt/hdd/srv/.hdd-marker missing")
+  awk '$2=="/mnt/hdd" && $4 ~ /^ro(,|$)/ {f=1} END {exit !f}' /proc/mounts \
+    && problems+=("/mnt/hdd is mounted read-only (filesystem errors?)")
+  kerr=$(journalctl -k --since -65min -q --no-pager -o cat \
+         | grep -wE "$sd[0-9]*|$ata(\.[0-9]+)?" \
+         | grep -iE 'I/O error|medium error|failed command|hard resetting|EXT4-fs error|link down' | tail -5)
+  [ -n "$kerr" ] && problems+=("kernel errors in the last hour: $kerr")
+  crc=$(smartctl -A "$dev" | awk '$1==199 {print $10}')
+  if [ -n "$crc" ]; then
+    last=$(cat "$state/crc" 2>/dev/null || echo "$crc")
+    [ "$crc" -gt "$last" ] && problems+=("UDMA_CRC_Error_Count rose $last -> $crc (check/replace the SATA cable)")
+    echo "$crc" > "$state/crc"
+  fi
+fi
+
+if [ ${#problems[@]} -gt 0 ]; then
+  msg=$(printf -- '- %s\n' "${problems[@]}")
+  /usr/local/bin/hdd-alert HDDHealthCheck "HDD problem on forestmachine" "$msg"
+  exit 1
+fi

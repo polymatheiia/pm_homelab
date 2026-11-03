@@ -124,6 +124,17 @@
     - Reload systemd daemon
     - Restart Caddy
 
+- name: Allow the caddy user to fetch Tailscale HTTPS certs
+  # Caddy gets certs for *.ts.net site names from tailscaled's local API,
+  # which only serves them to root, the operator, or TS_PERMIT_CERT_UID.
+  lineinfile:
+    path: /etc/default/tailscaled
+    regexp: '^TS_PERMIT_CERT_UID='
+    line: 'TS_PERMIT_CERT_UID=caddy'
+  notify:
+    - Restart tailscaled
+    - Restart Caddy
+
 - name: Enable Caddy
   systemd:
     name: caddy

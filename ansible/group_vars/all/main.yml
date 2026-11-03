@@ -5,6 +5,12 @@ homelab_user: nymph
 # interface so services are unreachable from the LAN. Leave empty to listen on all.
 tailscale_ip: "100.117.222.10"
 
+# This node's MagicDNS name (run: tailscale status --json | grep CertDomains).
+# Services with `tailnet_https: true` are also served at https://<this name>
+# with a real Let's Encrypt cert fetched by Caddy from tailscaled — needed by
+# clients (e.g. the GLANCE Android app) that refuse private-CA certs.
+tailscale_fqdn: "forestmachine.tailbd7cd6.ts.net"
+
 services:
   - name: immich
     compose_path: "{{ homelab_base }}/services/immich"
@@ -72,11 +78,24 @@ services:
     compose_path: "{{ homelab_base }}/services/dayglance"
     manage_env: false
     port: 9018
+  - name: ravebsd
+    compose_path: "{{ homelab_base }}/services/ravebsd"
+    manage_env: false
+    port: 9033
+    # Live updates use Server-Sent Events.
+    sse: true
+    # Always-on, not Sablier: downloads run in the background, so an idle
+    # timeout could stop one partway. Idles at about 120 MB.
+    # App settings and logins live here; never let the sync touch them.
+    sync_excludes:
+      - data
+      - library-data
   - name: glancevault
     compose_path: "{{ homelab_base }}/services/glancevault"
     manage_env: true
     port: 9029
     sse: true
+    tailnet_https: true
   - name: libre-closet
     compose_path: "{{ homelab_base }}/services/libre-closet"
     manage_env: true
@@ -103,10 +122,6 @@ services:
     port: 9003
     sablier: true
     sablier_session_duration: 30m
-  # onepanel (1Panel) deliberately excluded from ansible deploy: no official
-  # docker-compose path exists (only a host-level installer script that wants
-  # to manage the whole machine). See services/onepanel/README.md. Port 9005
-  # reserved but unused until an operator decision is made.
   - name: glances
     compose_path: "{{ homelab_base }}/services/glances"
     manage_env: false
@@ -156,8 +171,10 @@ services:
     compose_path: "{{ homelab_base }}/services/calibre-web"
     manage_env: true
     port: 9008
-    sablier: true
-    sablier_session_duration: 15m
+    # Kindle bookstore: KOReader reaches this over the Cloudflare Tunnel. Only
+    # the OPDS catalogue is public; the web UI stays on calibre-web.lab.
+    public_domain: books.grabovska.com
+    public_paths: [/opds, /opds/*]
   - name: gramvault-atlas
     compose_path: "{{ homelab_base }}/services/gramvault-atlas"
     manage_env: true
@@ -173,8 +190,8 @@ services:
   # FreedomBox deliberately excluded: no viable Docker deployment exists (the
   # official containerization project was archived 2019 — /etc/resolv.conf
   # locking, requires a reboot mid-install, LDAP breaks). FreedomBox is
-  # designed to be the OS, not run inside one — same class of problem as
-  # 1Panel above. Needs a dedicated VM/hardware if wanted later.
+  # designed to be the OS, not run inside one. Needs a dedicated VM/hardware
+  # if wanted later.
   # localsend deliberately excluded: it's a peer-to-peer LAN file-transfer
   # client (AirDrop-style) that runs on your own devices, not a headless
   # server — there's nothing here to deploy. (A self-hosted signaling

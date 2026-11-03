@@ -129,6 +129,7 @@ sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
 |-----------------|---------------|--------------------------------------|-----------------|
 | Immich          | 2283          | via `.env` (`UPLOAD_LOCATION`, `DB_DATA_LOCATION`) | yes |
 | Navidrome       | 4533          | `/srv/homelab/navidrome`, `/srv/media/music` (read-only) | yes |
+| Calibre-Web     | 9008 (localhost) | `/srv/pm_files/Books/Bookstore` (read-only, built by `bookstore-sync` on quemachine); OPDS only at `books.grabovska.com` | yes |
 | Glance          | 8080          | config files in repo                 | yes |
 | AdGuard Home    | 3080 (UI) / 53 (DNS) | `/srv/homelab/adguard`        | yes |
 | Sparky Fitness  | 3004 (frontend) / 3010 (API) | `/srv/homelab/sparky` | yes |
@@ -150,7 +151,6 @@ the last request before Sablier stops it again.
 |--------------|------|--------------------------------------------|--------------|
 | Mealie       | 9001 | Recipe manager                             | 30m |
 | DroppedNeedle| 9003 | Music acquisition (replaces Lidarr)        | 30m |
-| Calibre-Web  | 9008 | Ebook library browser/reader (OPDS), reads /srv/pm_files/Books/Calibre Library read-only | 15m |
 | Glances      | 9015 | Live CPU/mem/disk/process viewer           | 10m |
 | Plakar       | 9021 | Backup (targets: Immich library, Karakeep, the retired Nextcloud data archive) | 10m |
 | Grafana      | 9022 | BI/analytics, pairs with Prometheus        | 15m |
@@ -164,12 +164,9 @@ the last request before Sablier stops it again.
 | Karakeep     | 3000 | Bookmark/read-later manager with full-text search + screenshotting | 20m |
 
 Gramps Web (genealogy), Healthchecks (replaced by Prometheus + Blackbox
-Exporter + Alertmanager), job-ops, Semaphore, Activepieces, Ryot and
-Stirling-PDF were removed.
+Exporter + Alertmanager), job-ops, Semaphore, Activepieces, Ryot,
+Stirling-PDF, 1Panel, Gotify and LimeSurvey were removed.
 
-1Panel (`onepanel`) is deliberately excluded from Ansible deploy — no
-official docker-compose path exists, only a host-level installer that
-wants to manage the whole machine. Port 9005 is reserved but unused.
 FreedomBox and localsend were considered but dropped: FreedomBox has no
 viable Docker path (its containerization project was archived in 2019),
 and localsend is a peer-to-peer LAN client for your own devices, not a

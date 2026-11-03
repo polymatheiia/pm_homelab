@@ -6,3 +6,8 @@
   systemd:
     name: caddy
     state: restarted
+
+- name: Restart tailscaled
+  systemd:
+    name: tailscaled
+    state: restarted

@@ -1,0 +1,27 @@
+--- a/services/immich/docker-compose.yml	2026-10-10 11:49:57.726305459 +0200
++++ b/services/immich/docker-compose.yml	2026-10-10 11:49:57.746191178 +0200
+@@ -24,6 +24,24 @@
+     volumes:
+       # Do not edit the next line. If you want to change the media storage location on your system, edit the value of UPLOAD_LOCATION in the .env file
+       - ${UPLOAD_LOCATION}:/data
++      # Originals, uploads and DB dumps live on the HDD; thumbs, encoded-video and
++      # profile stay on the SSD under UPLOAD_LOCATION. Docker mounts these nested
++      # paths over /data. create_host_path: false = refuse to start without the HDD.
++      - type: bind
++        source: /mnt/hdd/srv/immich/library
++        target: /data/library
++        bind:
++          create_host_path: false
++      - type: bind
++        source: /mnt/hdd/srv/immich/upload
++        target: /data/upload
++        bind:
++          create_host_path: false
++      - type: bind
++        source: /mnt/hdd/srv/immich/backups
++        target: /data/backups
++        bind:
++          create_host_path: false
+       - /etc/localtime:/etc/localtime:ro
+     env_file:
+       - .env

@@ -1,0 +1,38 @@
+services:
+  ravebsd:
+    # Pinned rather than :latest: upstream's update.sh can't manage this file,
+    # so upgrades are a deliberate bump here (read the release notes first,
+    # 2.0 needed manual steps).
+    image: ghcr.io/idleendeavor/ravebsd:2.0.0
+    container_name: ravebsd
+    restart: unless-stopped
+    # Matches homelab_user so the bind-mounted folders stay writable.
+    user: "1000:1000"
+    ports:
+      # Loopback only: Caddy serves ravebsd.lab. Deliberately not bound to the
+      # tailscale IP, which doesn't exist yet when Docker starts on boot.
+      - "127.0.0.1:9033:8080"
+    volumes:
+      - ./data:/data
+      # Next to the other books, so Syncthing's `files` folder carries them.
+      - /srv/pm_files/Books/RaveBSD:/books
+      # Audiobooks stay out of /srv/pm_files so they don't sync to every device.
+      - ./library-data/audiobooks:/audiobooks
+      # Only used if qBittorrent is added later.
+      - ./library-data/downloads:/downloads
+    # Chromium needs more shared memory than the Docker default.
+    shm_size: "512mb"
+    environment:
+      # Without this, private mode only answers to IPs and local-looking names.
+      ALLOWED_HOSTS: ravebsd.lab
+      # Behind Caddy: read the client address from X-Forwarded-For.
+      TRUST_PROXY: "1"
+    # Upstream's profile: Docker's default plus the namespace calls Chromium's
+    # sandbox needs. Copied unchanged from the v2.0.0 tag.
+    security_opt:
+      - seccomp=./seccomp-chromium.json
+    labels:
+      - "glance.name=RaveBSD"
+      - "glance.icon=si:bookstack"
+      - "glance.url=https://ravebsd.lab"
+      - "glance.category=core"
