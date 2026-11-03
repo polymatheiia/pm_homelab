@@ -1,14 +1,16 @@
 services:
   meilisearch:
-    image: getmeili/meilisearch:v1.13.3
+    image: getmeili/meilisearch:v1.56.1
     container_name: karakeep_meilisearch
     restart: unless-stopped
     env_file:
       - .env
     environment:
       MEILI_NO_ANALYTICS: "true"
+      MEILI_UPGRADE_DB: "true"
     volumes:
-      - meilisearch:/meili_data
+      # Copy of the v1.13 "meilisearch" volume, upgraded in place; the old one is kept for rollback.
+      - meilisearch-v1_56:/meili_data
     networks:
       - karakeep-internal
     labels:
@@ -16,16 +18,17 @@ services:
       - "sablier.group=karakeep"
 
   chrome:
-    image: gcr.io/zenika-hub/alpine-chrome:124
+    # Upstream's own image; the entrypoint sets headless + DevTools on :9222.
+    image: ghcr.io/karakeep-app/karakeep-chrome:release
     container_name: karakeep_chrome
     restart: unless-stopped
+    init: true
     command:
-      - --no-sandbox
       - --disable-gpu
       - --disable-dev-shm-usage
-      - --remote-debugging-address=0.0.0.0
-      - --remote-debugging-port=9222
       - --hide-scrollbars
+      - --disable-blink-features=AutomationControlled
+      - --window-size=1440,900
     networks:
       - karakeep-internal
     labels:
@@ -69,7 +72,8 @@ services:
       - SETGID
 
 volumes:
-  meilisearch:
+  meilisearch-v1_56:
+    name: karakeep_meilisearch-v1_56
   data:
 
 networks:

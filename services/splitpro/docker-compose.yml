@@ -2,7 +2,7 @@ name: splitpro
 
 services:
   postgres:
-    image: ossapps/postgres:17.7-trixie
+    image: ossapps/postgres:18.3-trixie
     container_name: splitpro-db
     restart: unless-stopped
     env_file: [.env]
@@ -22,7 +22,8 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - database:/var/lib/postgresql/data
+      # PG18 images keep data under /var/lib/postgresql/18/docker; the PG17 "database" volume is kept for rollback.
+      - database-pg18:/var/lib/postgresql
     labels:
       - "sablier.enable=true"
       - "sablier.group=splitpro"
@@ -51,5 +52,5 @@ services:
       - "glance.category=on-demand"
 
 volumes:
-  database:
+  database-pg18:
   uploads:

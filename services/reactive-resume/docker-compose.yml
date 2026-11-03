@@ -7,7 +7,7 @@ name: reactive-resume
 
 services:
   postgres:
-    image: postgres:17
+    image: postgres:18
     container_name: reactive-resume-db
     restart: unless-stopped
     networks: [data_network]
@@ -17,7 +17,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql
+      # New volume for PG18; the PG17 "postgres_data" volume is kept for rollback.
+      - postgres_data_pg18:/var/lib/postgresql
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       start_period: 10s
@@ -109,7 +110,7 @@ services:
       - "glance.category=on-demand"
 
 volumes:
-  postgres_data:
+  postgres_data_pg18:
   redis_data:
   seaweedfs_data:
   data:

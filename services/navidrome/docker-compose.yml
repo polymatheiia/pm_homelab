@@ -1,6 +1,6 @@
 services:
   navidrome:
-    image: deluan/navidrome:0.53.3
+    image: deluan/navidrome:0.64.2
     container_name: navidrome
     user: 1000:1000
     environment:
